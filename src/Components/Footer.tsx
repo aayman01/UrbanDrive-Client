@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
                     Contact us
                 </NavLink>
                 <p className=" pt-4 flex items-center gap-1 hover:underline hover:text-blue-600 "><span><FaPhone /></span> +8801849317388
-                    {/* valid mobile number */}
+                 
                 </p>
                 <p className="  flex items-center gap-1 hover:underline hover:text-blue-600 "><span><MdOutlineEmail /></span> ayman.alfi098@gmail.com</p>
                 <p className="flex items-center gap-1"><span><IoLocationSharp /></span> Dhaka,Bangladesh.</p>
