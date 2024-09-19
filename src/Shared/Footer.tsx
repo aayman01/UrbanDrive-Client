@@ -61,7 +61,9 @@ const Footer: React.FC = () => {
                 >
                     Contact us
                 </NavLink>
-                <p className=" pt-4 flex items-center gap-1 hover:underline hover:text-blue-600 "><span><FaPhone /></span> +8801849317388 </p>
+                <p className=" pt-4 flex items-center gap-1 hover:underline hover:text-blue-600 "><span><FaPhone /></span> +8801849317388
+{/* valid mobile number */}
+                 </p>
                 <p className="  flex items-center gap-1 hover:underline hover:text-blue-600 "><span><MdOutlineEmail /></span> ayman.alfi098@gmail.com</p>
                 <p className="flex items-center gap-1"><span><IoLocationSharp /></span> Dhaka,Bangladesh.</p>
             </li>
@@ -102,7 +104,7 @@ const Footer: React.FC = () => {
                         <p aria-label="UrbanDrive" className="flex">
                             <img className="w-auto h-14 rounded" loading="lazy" src={logo}
                              alt="UrbanDrive" />
-                         
+
                         </p>
 
                         <p className="mt-4 text-sm text-gray-500 sm:mt-0 dark:text-gray-300">
