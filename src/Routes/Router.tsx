@@ -7,7 +7,7 @@ import ErrorPage from "../Pages/ErrorPage";
 import Registration from "../Pages/Login/Registration/Registration";
 import Contact from "../Pages/Contact/Contact";
 import CarDetails from "../Pages/CarDetails/CarDetails";
-import Cars from "../Components/Cars";
+
 import PaymentPage from "../Components/PaymentSystem/PaymentPage";
 import Dashboard from "../Layouts/Dashboard";
 import OnboardCheckout from "../Pages/OnboardCheckout/OnboardCheckout";
@@ -27,6 +27,7 @@ import Profile from "../Components/UserDashboard/Profile";
 import Favorite from "../Components/UserDashboard/Favorite";
 import Booked from "../Components/UserDashboard/Booked";
 import Membership from "../Components/Membership/Membership";
+import Cars from "../Components/Cars";
 
 const router = createBrowserRouter([
   {
@@ -59,7 +60,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/services",
-        element: <Cars></Cars>,
+        element: <Cars ></Cars>,
       },
       {
         path: "/hostingForm",

@@ -27,6 +27,7 @@ const Cars: React.FC<Car> = () => {
   const [cars,setCars] = useState([]);
   const [homePickup,setHomePickup]=useState("");
   const {t} = useTranslation();
+  const [permissionGranted, setPermissionGranted] = useState(false);
 
 
   const {
@@ -60,30 +61,38 @@ const Cars: React.FC<Car> = () => {
       return response.data.Cars;
     },
   });
-  useEffect(() => {
-    const askForLocationPermission = () => {
-      if (window.confirm("Do you want to use your location?")) {
-        getCurrentLocation(); 
-      } else {
-        alert("Your location is not allowed to be used.");
-      }
-    };
-
-    askForLocationPermission();
-  }, []);
+  const askForLocationPermission = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          setPermissionGranted(true);
+          // alert("Allow to use your location.");
+          localStorage.setItem('locationPermission', 'granted');
+        },
+        (error) => {
+          if (error.code === error.PERMISSION_DENIED) {
+            alert("You have not given permission to use your location.");
+          }
+        }
+      );
+    } else {
+      alert("Geolocation is not supported in this browser.");
+    }
+  };
 
  
    // Fetch user's current location
-   const getCurrentLocation = () => {
-    if (navigator.geolocation) {
+   const fetchCurrentLocation = () => {
+    if (permissionGranted) {
       navigator.geolocation.getCurrentPosition((position) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         setUserLocation({ lat, lng });
         fetchCars(lat, lng, 5000);
+        
       });
     } else {
-      alert("Geolocation is not supported by this browser.");
+      alert("Location permission not yet granted.");
     }
   };
   const fetchCars = async (lat: number, lng: number, maxDistance: number) => {
@@ -102,7 +111,16 @@ const Cars: React.FC<Car> = () => {
       console.error("Error fetching cars:", error);
     }
   };
-
+  useEffect(() => {
+    const savedPermission = localStorage.getItem('locationPermission');
+    if (savedPermission === 'granted') {
+      
+      setPermissionGranted(true);
+    } else {
+    
+      askForLocationPermission();
+    }
+  }, []);
 useEffect(() => {
   if (userLocation || searchLocation) {
     refetch()
@@ -124,7 +142,7 @@ const fetchAllCars = async () => {
 const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
   const selectedValue = e.target.value;
   if (selectedValue === "current") {
-    getCurrentLocation(); // Get current location and fetch cars
+    fetchCurrentLocation(); // Get current location and fetch cars
   } else if (selectedValue === "anywhere") {
     fetchAllCars(); // Fetch all cars from the server
   }
