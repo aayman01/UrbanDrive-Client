@@ -28,6 +28,7 @@ interface AuthContextType {
   logOut: () => Promise<void>;
   googleSignIn: () => Promise<any>;
   updateUserProfile: (name: string, photo: string) => Promise<void>;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 // Default value for context
@@ -39,6 +40,7 @@ const defaultAuthContext: AuthContextType = {
   logOut: async () => { /* no-op */ },
   googleSignIn: async () => { /* no-op */ },
   updateUserProfile: async () => { /* no-op */ },
+  setUser: () => { /* no-op */ },
 };
 
 

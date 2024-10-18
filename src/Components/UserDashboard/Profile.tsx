@@ -8,19 +8,35 @@ import { SyncLoader } from 'react-spinners';
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
-
+interface User {
+    email: string;
+    displayName: string;
+    photoURL: string;
+    language?: string;
+    work?: string;
+    link?: string;
+    phone?: string;
+    metadata?: {
+      creationTime: string;
+    };
+  }
 
 const Profile: React.FC = () => {
-    const { user } = useAuth();
+    // const { user }: { user: Partial<User> | null } = useAuth();
+    const { user, loading } = useAuth() as { user: User | null; loading: boolean };
+
+
+
+    // const { user ,setUser} = useAuth();
     const axiosPublic = useAxiosPublic();
     // console.log('user:', user);
     const [isEditing, setIsEditing] = useState(false);
     // const [displayName, setDisplayName] = useState(user?.displayName || '');
-    const [language, setLanguage] = useState(user?.language || ''); 
-    const [work, setWork] = useState(user?.work || ''); 
-    const [link, setLink] = useState(user?.link || ''); 
+    const [language, setLanguage] = useState<string>(user?.language || ''); // টাইপ স্পেসিফাই করা
+const [work, setWork] = useState<string>(user?.work || '');
+const [link, setLink] = useState<string>(user?.link || '');
+const [phone, setPhone] = useState<string>(user?.phone || '');
     const [photoURL, setPhotoURL] = useState('');
-    const [phone, setPhone] = useState(user?.phone || '');
 
     const {
         data: userdata,  // Corrected line with comma
@@ -29,7 +45,7 @@ const Profile: React.FC = () => {
     } = useQuery({
         queryKey: ["userdata",user?.email],
         queryFn: async () => {
-            // if (!user?.email) return null; 
+            if (!user?.email) return null; 
             const response = await axiosPublic.get(`/user/${user?.email}`); 
             return response.data;
         },
@@ -74,7 +90,7 @@ const Profile: React.FC = () => {
 
     try {
         const response = await axiosPublic.put('/user/profile', { updateData: updatedUser });
-        setUser(response.data);
+        // setUser(response.data);
         toast.success('User profile updated successfully');
         setIsEditing(false);
     } catch (error) {
@@ -87,11 +103,18 @@ const Profile: React.FC = () => {
     const handleCancel = () => {
         setIsEditing(false); 
     };
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <SyncLoader color="#593cfb" size={10} /> {/* লোডিং স্পিনার */}
+            </div>
+        );
+    }
 
     if (isLoading) {
         return (
           <div className="min-h-screen flex items-center justify-center">
-            <SyncLoader color="#593cfb" size={18} />
+            <SyncLoader color="#593cfb" size={10} />
           </div>
         );
       }
@@ -104,6 +127,9 @@ const Profile: React.FC = () => {
           </div>
         );
       }
+//       console.log('User photoURL:', user?.photoURL);
+// console.log('Userdata photoURL:', userdata?.photoURL);
+
     return (
         <div className='container mx-auto p-2 lg:p-24'>
             

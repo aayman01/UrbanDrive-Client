@@ -60,7 +60,6 @@ const Booked: React.FC = () => {
             <thead className="bg-primary text-white">
               <tr className="text-base">
                 <th>#</th>
-                <th>User</th>
                 <th>Location</th>
                 <th>Phone Number</th>
                 <th>Start Date</th>
@@ -72,7 +71,6 @@ const Booked: React.FC = () => {
               {allBookings.map((item: any, idx: number) => (
                 <tr key={item._id}>
                   <th>{idx + 1}</th>
-                  <td>{item?.user}</td>
                   <td>{item?.location}</td>
                   <td>{item?.phoneNumber}</td>
                   <td>{formatDate(item?.startDate)}</td>

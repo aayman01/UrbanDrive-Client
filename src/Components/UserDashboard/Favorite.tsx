@@ -3,14 +3,14 @@ import React from 'react';
 import useAxiosPublic from '../../Hooks/useAxiosPublic';
 import useAuth from '../../Hooks/useAuth';
 import { Link } from 'react-router-dom';
-import { IoMdHeart, } from "react-icons/io";
+// import { IoMdHeart, } from "react-icons/io";
 import { FaAward, FaMapLocationDot } from 'react-icons/fa6';
 import { MdOutlineDiscount, MdOutlineStar } from 'react-icons/md';
 import { SyncLoader } from 'react-spinners';
 
 const Favorite: React.FC = () => {
     const axiosPublic = useAxiosPublic();
-    const { user } = useAuth();
+    const { user,loading } = useAuth();
 
     const {
         data: favoriteCars = [],
@@ -25,7 +25,13 @@ const Favorite: React.FC = () => {
         staleTime: 10000,
     });
     // console.log('favoritecar:',favoriteCars)
-
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <SyncLoader color="#593cfb" size={10} /> {/* লোডিং স্পিনার */}
+            </div>
+        );
+    }
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -40,13 +46,13 @@ const Favorite: React.FC = () => {
 
    
 
-    const removeFromFavoriteCars = async (carId: string) => {
-        try {
-            await axiosPublic.delete(`/favoritesCars/${user?.email}/${carId}`);
-        } catch (error) {
-            console.error('Error removing favorite car:', error);
-        }
-    };
+    // const removeFromFavoriteCars = async (carId: string) => {
+    //     try {
+    //         await axiosPublic.delete(`/favoritesCars/${user?.email}/${carId}`);
+    //     } catch (error) {
+    //         console.error('Error removing favorite car:', error);
+    //     }
+    // };
 
     return (
         <div>
@@ -55,7 +61,7 @@ const Favorite: React.FC = () => {
             <div className="grid mt-5 grid-cols-1 gap-4 lg:gap-6">
                 {/* If there's only one favorite car */}
                 {favoriteCars.length === 1 ? (
-                    <div key={favoriteCars[0]._id} className="card lg:card-side bg-base-100 shadow-xl rounded-2xl group">
+                    <div key={favoriteCars[0]._id} className="card w-[500px] h-[300px] lg:card-side bg-base-100 shadow-xl rounded-2xl group">
                         <figure className="w-full lg:w-[50%]">
                             <img
                                 className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
@@ -71,6 +77,27 @@ const Favorite: React.FC = () => {
                             <p className="text-ellipsis">
                                 {favoriteCars[0].description.slice(0, 80)}....
                             </p>
+                            {favoriteCars.rating > 0 ? (
+                    <p className="flex gap-1">
+                        {favoriteCars.rating}
+                        <MdOutlineStar className="text-[#f0bb0c] mt-1" /> ({favoriteCars.trip_count} trips){" "}
+                        <FaAward className="mt-1 text-primary font-bold" />{" "}
+                        <span className="font-bold">All-Star-Host</span>
+                    </p>
+                ) : (
+                    <p>New listing</p>
+                )}
+                <p className="flex gap-1">
+                    <FaMapLocationDot className="mt-1" />
+                    {favoriteCars.make}
+                </p>
+                {favoriteCars.discount > 0 ? (
+                    <span className="flex gap-1 text-[#0f923b] ">
+                        <MdOutlineDiscount className="mt-1" /> Discount: {favoriteCars.discount}%
+                    </span>
+                ) : (
+                    <p></p>
+                )}
                             <div className="card-actions gap-2 items-center justify-end mt-2">
                                 <span className="text-primary font-bold text-xl">
                                     ${favoriteCars[0].rental_price_per_day}/day
