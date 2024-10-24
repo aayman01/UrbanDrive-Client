@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 import useAxiosPublic from "../../../../Hooks/useAxiosPublic";
 import { ClipLoader } from "react-spinners"; // Importing a spinner
+import useAuth from "../../../../Hooks/useAuth";
 
 interface BookingData {
     _id: string;
     hostIsApproved: string;
 }
 
-const DynamicPieChart: React.FC = () => {
+const DynamicPieChartHost: React.FC = () => {
     const [piChartData, setPiChartData] = useState<(string | number)[][]>([
         ["Status", "Count"],
         ["Success", 0],
@@ -18,6 +19,7 @@ const DynamicPieChart: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const axiosPublic = useAxiosPublic();
+    const { user } = useAuth()
 
     const options = {
         title: "Booking Approval Status",
@@ -31,13 +33,14 @@ const DynamicPieChart: React.FC = () => {
             setLoading(true);
             setError(null);
             try {
-                const response = await axiosPublic.get<BookingData[]>("/bookings-data");
+                const response = await axiosPublic.get<BookingData[]>(`/hostHistory/${user?.email}`);
                 const bookingData = response.data;
-                if (bookingData.length === 0) {
-                    setError("No booking data available.!!!. so pi chart is not available...");
-                    setLoading(false);
-                    return;
-                }
+                // Ensure there are bookings to process
+            if (bookingData.length === 0) {
+                setError("No booking data available.!!!. so pi chart is not available...");
+                setLoading(false);
+                return;
+            }
                 const statusCounts = bookingData.reduce(
                     (acc, booking) => {
                         const status = booking.hostIsApproved;
@@ -73,7 +76,7 @@ const DynamicPieChart: React.FC = () => {
     }, [axiosPublic]);
 
     if (loading) return <ClipLoader size={50} color="#36D7B7" />; // Use a spinner for loading
-    if (error) return <div>{error}</div>;
+    if (error) return <div className="text-red-400">{error}</div>;
 
     return (
         <div>
@@ -88,4 +91,4 @@ const DynamicPieChart: React.FC = () => {
     );
 };
 
-export default DynamicPieChart;
+export default DynamicPieChartHost;
