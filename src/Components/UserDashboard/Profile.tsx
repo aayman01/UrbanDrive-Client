@@ -1,4 +1,4 @@
-import React, {  useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import useAuth from '../../Hooks/useAuth';
 import { LuCheckCircle } from "react-icons/lu";
 import useAxiosPublic from '../../Hooks/useAxiosPublic';
@@ -7,8 +7,8 @@ import toast from 'react-hot-toast';
 import { SyncLoader } from 'react-spinners';
 import Navbar from '../Navbar';
 import Footer from '../Footer';
-
-
+import { Link } from 'react-router-dom';
+import  { AxiosError } from 'axios';
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -23,24 +23,24 @@ interface User {
     metadata?: {
       creationTime: string;
     };
+    userId: string; 
   }
 
 const Profile: React.FC = () => {
     // const { user }: { user: Partial<User> | null } = useAuth();
     const { user, loading } = useAuth() as { user: User | null; loading: boolean };
-
-
-
     // const { user ,setUser} = useAuth();
     const axiosPublic = useAxiosPublic();
     // console.log('user:', user);
     const [isEditing, setIsEditing] = useState(false);
     // const [displayName, setDisplayName] = useState(user?.displayName || '');
-    const [language, setLanguage] = useState<string>(user?.language || ''); // টাইপ স্পেসিফাই করা
+    const [language, setLanguage] = useState<string>(user?.language || ''); 
 const [work, setWork] = useState<string>(user?.work || '');
 const [link, setLink] = useState<string>(user?.link || '');
 const [phone, setPhone] = useState<string>(user?.phone || '');
     const [photoURL, setPhotoURL] = useState('');
+    const [reviews, setReviews] = useState<Reviews[]>([]);
+    const [error, setError] = useState<string>('');
 
     const {
         data: userdata,  // Corrected line with comma
@@ -102,7 +102,26 @@ const [phone, setPhone] = useState<string>(user?.phone || '');
         toast.error('Failed to update user profile');
     }
 };
+useEffect(() => {
+    const getReviewsByUserId = async () => {
+        if (!user) return; // Check if user is logged in
+        try {
+            const response = await axiosPublic.get(`/review/${user.email}`);
+            setReviews(response.data); // Set the retrieved reviews to state
+        } catch (error) {
+            const axiosError = error as AxiosError;
+            if (axiosError.response && axiosError.response.status === 404) {
+                console.warn('No reviews found for this user');
+            } else {
+                setError('Failed to load reviews');
+                console.error('Error fetching reviews:', axiosError);
+            }
+        }
+    };
+    getReviewsByUserId();
+}, [user]);
 
+console.log('review:',reviews)
   
     const handleCancel = () => {
         setIsEditing(false); 
@@ -302,21 +321,38 @@ if (!userdata) {
             
              <h2 className='uppercase text-slate-500 text-sm font-lato font-semibold lg:mt-4'>Reviews from hosts</h2>
              <div className='flex gap-5 mt-3'>
-             {userdata?.photoURL ?  (<img src={userdata?.photoURL} className='rounded-full  w-32 h-32' alt="" />):( <img src={user?.photoURL} className='rounded-full  w-32 h-32' alt="" />)}
-             <div>
-             <div className="rating rating-sm ">
-             <input type="radio" name="rating-9" className="mask mask-star-2" />
-            <input type="radio" name="rating-9" className="mask mask-star-2" />
-            <input type="radio" name="rating-9" className="mask mask-star-2"  />
-            <input type="radio" name="rating-9" className="mask mask-star-2" />
-            <input type="radio" name="rating-9" className="mask mask-star-2" />
-            <input type="radio" name="rating-9" className="mask mask-star-2" />
+    {reviews && reviews.length > 0 ? (
+        reviews.map((review) => (
+            <div key={review._id}>
+                <h2 className='text-black font-semibold'>{review.comment}</h2>
+                <Link to={`/reviews/${review._id}`} className="text-blue-500 underline">
+                    View Review
+                </Link>
             </div>
+        ))
+    ) : (
+        <>
+            {userdata?.photoURL ? (
+                <img src={userdata.photoURL} className='rounded-full w-32 h-32' alt="User Profile" />
+            ) : (
+                <img src={user?.photoURL} className='rounded-full w-32 h-32' alt="User Profile" />
+            )}
+            <div>
+                <div className="rating rating-sm">
+                    <input type="radio" name="rating-9" className="mask mask-star-2" />
+                    <input type="radio" name="rating-9" className="mask mask-star-2" />
+                    <input type="radio" name="rating-9" className="mask mask-star-2" />
+                    <input type="radio" name="rating-9" className="mask mask-star-2" />
+                    <input type="radio" name="rating-9" className="mask mask-star-2" />
+                    <input type="radio" name="rating-9" className="mask mask-star-2" />
+                </div>
                 <h2 className='text-black font-semibold'>No reviews yet</h2>
                 <h2>{user?.displayName} hasn’t received a review on UrbanDrive yet.</h2>
-             </div>
-        
-             </div>
+            </div>
+        </>
+    )}
+</div>
+
             {isEditing?( <div className='flex gap-5 justify-end lg:mt-36 '>
             <button onClick={handleSave} className='bg-primary pt-2 pb-2 pl-3 pr-3 rounded-lg text-white'>Save change</button>
             <button onClick={handleCancel} className='bg-primary pt-2 pb-2 pl-3 pr-3 rounded-lg text-white'>Cancel</button>

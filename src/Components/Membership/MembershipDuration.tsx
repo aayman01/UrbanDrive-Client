@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import useAxiosPublic from "../../Hooks/useAxiosPublic";
 import useAuth from "../../Hooks/useAuth";
@@ -10,21 +9,15 @@ const MembershipDuration: React.FC = () => {
   const axiosPublic = useAxiosPublic();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const { planName, price } = useParams<{ planName: string; price: string }>();
   const [duration, setDuration] = useState<number>(1);
   const parsedPrice = price ? parseFloat(price) : NaN;
-  // const calculatedPrice = price * duration;
 
   const calculatedPrice = parsedPrice * duration;
 
-  const handleDurationChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleDurationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setDuration(Number(event.target.value));
   };
-
-  // payment function
 
   const paymentInfo = {
     price: calculatedPrice,
@@ -39,14 +32,11 @@ const MembershipDuration: React.FC = () => {
   const handleSubmitPayment = async () => {
     setIsLoading(true);
     try {
-      // post request
       const { data } = await axiosPublic.post("/create-payment", paymentInfo);
       const redirectUrl = data.paymentUrl;
-      // console.log(redirectUrl);
       if (redirectUrl) {
         window.location.replace(redirectUrl);
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error posting payment info:", error);
       toast.error(error.message);
@@ -56,46 +46,56 @@ const MembershipDuration: React.FC = () => {
   };
 
   return (
-    <div className="container lg:mt-16 mx-auto p-6">
+    <div className=" ">
+      <div className=" lg:mt-16 lg:p-16 mx-auto  bg-white shadow-lg rounded-lg">
       <h1 className="text-3xl font-bold mb-4 text-gray-800">
-        {planName} Select the duration for the membership
+        {planName} - Select the Duration for Your Membership
       </h1>
+      <p className="text-gray-600 mb-4">
+        Choose a duration that best fits your needs and enjoy exclusive benefits!
+      </p>
+
       <label className="block mb-4 text-lg font-bold text-gray-700">
         How many months do you want to buy?
       </label>
       <select
         value={duration}
         onChange={handleDurationChange}
-        className="block w-2/3 p-2 border rounded-lg mb-4"
+        className="block w-2/3 p-2 border  border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-secondary"
       >
         <option value={1}>1 Month</option>
-        <option value={3}>3 Month</option>
-        <option value={6}>6 Month</option>
+        <option value={3}>3 Months</option>
+        <option value={6}>6 Months</option>
         <option value={12}>1 Year</option>
       </select>
 
       <p className="text-xl font-bold text-gray-700">
-        TotalPrice:  <span className="text-xl mr-2">BDT</span>
-         {calculatedPrice}
-       
+        Total Price: <span className="text-xl mr-2">BDT</span>
+        {calculatedPrice.toFixed(2)}
       </p>
+
+      <p className="text-sm text-gray-500 mb-4">
+        *Payment will be processed securely. A confirmation email will be sent upon successful payment.
+      </p>
+
       <button
         onClick={handleSubmitPayment}
-        className={`w-2/3 bg-gradient-to-r bg-secondary text-white hover:bg-[#0c8771]  font-bold py-2 px-4 rounded mt-4 ${
+        className={`w-2/3 bg-secondary hover:bg-[#27998c] text-white font-bold py-2 px-4 rounded mt-4 ${
           isLoading ? " cursor-not-allowed" : ""
         }`}
         disabled={isLoading}
       >
         {isLoading ? (
-          <ImSpinner9
-            size={28}
-            className="animate-spin m-auto text-green-600"
-          />
+          <ImSpinner9 size={28} className="animate-spin m-auto text-white" />
         ) : (
-          "Payment"
+          "Proceed to Payment"
         )}
       </button>
+
     </div>
+
+    </div>
+    
   );
 };
 

@@ -9,7 +9,7 @@ import { FaAward, FaCar, FaMapLocationDot } from "react-icons/fa6";
 import { MdOutlineDiscount, MdOutlineStar } from "react-icons/md";
 import { SyncLoader } from "react-spinners";
 import Navbar from "../Navbar";
-import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
+// import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 
 const Favorite: React.FC = () => {
   const axiosPublic = useAxiosPublic();
@@ -209,7 +209,8 @@ const Favorite: React.FC = () => {
 
                   <div className="flex items-center justify-between mt-4">
                     <span className="text-primary font-bold text-lg">
-                      {car.price}<span className="text-[18px] font-extrabold">৳</span>/day
+                    <span className="text-[18px] font-bold mr-2">BDT</span>
+                      {car.price}/day
                     </span>
                     <Link to={`/cars/${car._id}`}>
                       <button className="bg-secondary text-white text-sm px-4 py-3 font-bold drop-shadow-md rounded-lg transition-transform duration-300 hover:scale-105">
