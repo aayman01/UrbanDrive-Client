@@ -133,7 +133,7 @@ const CarsData: React.FC<CarsDataProps> = ({ cars }) => {
                       </p>
                     </div>
 
-                    <div className="overflow-hidden transition-all duration-300 ease-in-out max-h-0 group-hover:max-h-64 opacity-0 group-hover:opacity-100">
+                    <div className="overflow-hidden transition-all duration-500 ease-in-out h-0 group-hover:h-24 opacity-0 group-hover:opacity-100">
                       <div className="mt-3 space-y-2 text-sm text-text">
                         <div className="flex flex-wrap gap-2">
                           {car.features.slice(0, 3).map((feature, index) => (

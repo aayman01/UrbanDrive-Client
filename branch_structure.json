@@ -1,0 +1,33 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "Adnan-repo",
+    "aayman",
+    "dev-nayeem",
+    "dev-roksana",
+    "development",
+    "main",
+    "origin",
+    "revert-47-revert-45-dev-roksana"
+  ],
+  "parent": {
+    "Adnan-repo": "main",
+    "aayman": "main",
+    "dev-nayeem": "main",
+    "dev-roksana": "main",
+    "development": "main",
+    "main": null,
+    "origin": "main",
+    "revert-47-revert-45-dev-roksana": "main"
+  },
+  "order": [
+    "main",
+    "Adnan-repo",
+    "aayman",
+    "dev-nayeem",
+    "dev-roksana",
+    "development",
+    "origin",
+    "revert-47-revert-45-dev-roksana"
+  ]
+}

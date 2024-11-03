@@ -11,7 +11,7 @@ import {
 import AuthProvider from './AuthProvider/AuthProvider.tsx'
 import { Toaster } from "react-hot-toast";
 import { I18nextProvider } from "react-i18next";
-import i18n from './Utils/i18n.ts'
+import i18n from './utils/i18n.ts'
 
 
 
