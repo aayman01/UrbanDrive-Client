@@ -101,7 +101,7 @@ const HostOverview: React.FC = () => {
     amount: number;
     totalCost: number;
   }
-  //  get price ----
+  //  get price 
   const { data: bookingData = [] } = useQuery<Booking[]>({
     queryKey: ["bookingData"],
     queryFn: async () => {
