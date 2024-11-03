@@ -18,7 +18,9 @@ import { SyncLoader } from 'react-spinners';
 import { useQuery } from '@tanstack/react-query';
 import { Rating, Star } from '@smastrom/react-rating';
 import ReviewForm from '../../Components/ReviewForm/ReviewForm';
+import { debounce } from 'lodash';
 
+// Framer Motion
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
@@ -33,6 +35,12 @@ const staggerChildren = {
   }
 };
 
+interface SearchResult {
+  place_id: number;
+  display_name: string;
+  lat: string;
+  lon: string;
+}
 const CarDetails: React.FC = () => {
   const navigate = useNavigate();
   const car = useLoaderData() as ICar;
@@ -52,7 +60,6 @@ const CarDetails: React.FC = () => {
       key: 'selection'
     }
   ]);
-
   const axiosPublic = useAxiosPublic();
   const [location, setLocation] = useState('Current Location');
   const [showCalendar, setShowCalendar] = useState(false);
@@ -60,6 +67,9 @@ const CarDetails: React.FC = () => {
   const [perDayCost, setPerDayCost] = useState(0);
   const [includedDriver, setIncludedDriver] = useState(false);
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   // const [totalPages, setTotalPages] = useState(1);
 
 
@@ -168,7 +178,41 @@ console.log(car.email);
     };
   }, []);
 
+  // Search Location
+  const searchLocations = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=bd&limit=5`,
+        {
+          headers: {
+            'Accept-Language': 'en-US'
+          }
+        }
+      );
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error('Error fetching locations:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
+  // Add debounced search function
+  const debouncedSearch = debounce(searchLocations, 300);
+
+
+  const handleLocationSelect = (displayName: string) => {
+    setLocation(displayName);
+    setSearchQuery(displayName);
+    setSearchResults([]);
+  };
 
   if (!car) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -378,21 +422,57 @@ console.log(car.email);
                   )}
 
                   {/* Location */}
-                  <div className="mb-6">
+                  <div className="mb-6 relative">
                     <p className="text-sm font-semibold mb-2 text-primary">Pickup & return location</p>
-                    <select 
-                      value={location} 
-                      onChange={(e) => setLocation(e.target.value)} 
-                      className="w-full border border-primary/20 p-3 rounded-lg bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="">Select location</option>
-                      <option value="uttara">Uttara</option>
-                      <option value="Gazipur">Dhaka</option>
-                      <option value="Gulshan">Gulshan</option>
-                      <option value="Badda">Badda</option>
-                      <option value="Khilkhet">Khilkhet</option>
-                      <option value="Airport">Airport</option>
-                    </select>
+
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                          debouncedSearch(e.target.value);
+                        }}
+                        placeholder="Search for a location..."
+                        className="w-full border border-primary/20 p-3 rounded-lg bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                      {isSearching && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Search Results Dropdown */}
+                    {searchResults.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {searchResults.map((result) => (
+                          <button
+                            key={result.place_id}
+                            onClick={() => handleLocationSelect(result.display_name)}
+                            className="w-full text-left px-4 py-2 hover:bg-background/50 focus:bg-background/50 transition-colors text-sm"
+                          >
+                            {result.display_name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Quick Select Buttons */}
+                    <div className="mt-2">
+                      <p className="text-sm text-text mb-2">Or select a popular location:</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {["Uttara", "Mohammadpur", "Gulshan", "Badda", "Khilkhet", "Airport"].map((place) => (
+                          <button
+                            key={place}
+                            onClick={() => handleLocationSelect(place)}
+                            className="px-3 py-1.5 text-sm bg-background rounded-lg hover:bg-primary/10 transition-colors"
+                          >
+                            {place}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Continue Button */}

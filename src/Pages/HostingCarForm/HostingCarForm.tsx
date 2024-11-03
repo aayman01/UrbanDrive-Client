@@ -11,7 +11,7 @@ import HostInformation from './steps/HostInformation';
 import Membership from './steps/Membership';
 import useAxiosPublic from '../../Hooks/useAxiosPublic';
 import Swal from 'sweetalert2';
-import { imageUpload } from '../../Utils/ImageUpload';
+import { imageUpload } from '../../utils/ImageUpload';
 
 
 interface FormData {
