@@ -12,12 +12,13 @@ interface bookings {
   location: string;
   amount: number;
   status: string;
+  hostIsApproved : string;
 }
 
 const HostManageBookings = () => {
   const axiosPublic = useAxiosPublic();
   const {user} = useAuth();
-  const { data: myHistory = [],isLoading } = useQuery({
+  const { data: myHistory = [],isLoading,refetch } = useQuery({
     queryKey: ["myHistory"],
     queryFn: async () => {
       const res = await axiosPublic.get(`/hostHistory/${user?.email}`);
@@ -33,6 +34,24 @@ const HostManageBookings = () => {
 //       day: "numeric",
 //     });
 //   };
+
+  const handleAccept = (id : string) => {
+    axiosPublic.patch(`/updateApStatus/${id}`, { hostIsApproved : "Accepted"})
+    .then(res => {
+      if(res.data.modifiedCount > 0){
+        refetch();
+      }
+    })
+  }
+  const handleCancel = (id : string) => {
+    axiosPublic
+      .patch(`/updateApStatus/${id}`, { hostIsApproved: "canceled" })
+      .then((res) => {
+        if (res.data.modifiedCount > 0) {
+          refetch();
+        }
+      });
+  }
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -83,8 +102,30 @@ const HostManageBookings = () => {
                         <td>{formatDate(item?.endDate)}</td> */}
                         <td className="font-bold">{item?.amount}৳</td>
                         <td className="text-center">
-                          <button className="btn btn-success mr-6 text-white">Accept</button>
-                          <button className="btn btn-error text-white">Cancel</button>
+                          {item?.hostIsApproved === "Accepted" ? (
+                            <span className="text-green-600 font-semibold">
+                              Accepted
+                            </span>
+                          ) : item?.hostIsApproved === "canceled" ? (
+                            <span className="text-red-600 font-semibold">
+                              Canceled
+                            </span>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleAccept(item._id)}
+                                className="btn btn-success mr-6 text-white"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => handleCancel(item._id)}
+                                className="btn btn-error text-white"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          )}
                         </td>
                       </tr>
                     )
