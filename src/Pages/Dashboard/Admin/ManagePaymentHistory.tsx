@@ -4,7 +4,7 @@ import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 
 interface PaymentData {
   _id: string;
-  name: string;
+  cus_name: string;
   paymentId: string;
   tran_date: string;
   card_type: string;
@@ -58,7 +58,7 @@ const formatDate = (dateString: string) => {
                 {paymentHistory.map((item: PaymentData, idx: number) => (
                   <tr key={item._id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-4">{idx + 1}</td>
-                    <td className="py-4">{item?.name}</td>
+                    <td className="py-4">{item?.cus_name}</td>
                     <td className="py-4">{item?.paymentId}</td>
                     <td className="py-4">{item?.card_type}</td>
                     <td className="py-4">{formatDate(item?.tran_date)}</td>

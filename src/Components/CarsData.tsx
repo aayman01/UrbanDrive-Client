@@ -6,7 +6,7 @@ import useAxiosPublic from "../Hooks/useAxiosPublic";
 import useAuth from "../Hooks/useAuth";
 import toast from "react-hot-toast";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
-import { FaAward, FaCar, } from "react-icons/fa6";
+import { FaAward, FaCar } from "react-icons/fa6";
 interface CarsDataProps {
   cars: any;
 }
@@ -33,22 +33,26 @@ const CarsData: React.FC<CarsDataProps> = ({ cars }) => {
     make: string;
     seatCount: number;
     features: string[];
+    carId : any;
   }
   useEffect(() => {
     const fetchFavoriteCars = async () => {
-        if (user?.email) {
-            try {
-                const response = await axiosPublic.get(`/favoritesCars/${user.email}`);
-                const favoriteCarIds = response.data.map((car: Car) => car._id);
-                setFavoriteCars(favoriteCarIds);
-            } catch (error) {
-                console.error('Error fetching favorite cars:', error);
-            }
+      if (user?.email) {
+        try {
+          const response = await axiosPublic.get(
+            `/favoritesCars/${user.email}`
+          );
+          const favoriteCarIds = response.data.map((car: Car) => car.carId);
+          setFavoriteCars(favoriteCarIds);
+        } catch (error) {
+          console.error("Error fetching favorite cars:", error);
         }
+      }
     };
 
     fetchFavoriteCars();
-}, [user, axiosPublic]);
+  }, [user, axiosPublic]);
+  // console.log('favoritecars:',favoriteCars)
   const removeFromFavoriteCars = async (carId: string) => {
     try {
       // console.log('গাড়ির ID মুছতে:', carId);
@@ -61,17 +65,41 @@ const CarsData: React.FC<CarsDataProps> = ({ cars }) => {
       toast.error("Failed to remove from favorites.");
     }
   };
+  // const addToFavoriteCars = async (car: Car) => {
+  //   try {
+  //     const response = await axiosPublic.post("/favoritesCars", {
+  //       ...car,
+  //       email: user?.email,
+  //     });
+  //     setFavoriteCars([...favoriteCars, car._id]);
+  //     toast.success("Added to favorites!");
+  //     console.log("Added to favorites:", response.data);
+  //   } catch (error) {
+  //     console.error("Error adding to favorites:", error);
+  //   }
+  // };
+  // const removeFromFavoriteCars = async (carId: string) => {
+  //   try {
+  //     await axiosPublic.delete(`/favoritesCars/${user?.email}/${carId}`);
+  //     setFavoriteCars(favoriteCars.filter((id) => id !== carId));
+  //     toast.success("Removed from favorites!");
+  //   } catch (error) {
+  //     console.error("Error removing from favorites:", error);
+  //     toast.error("Failed to remove from favorites.");
+  //   }
+  // };
+
   const addToFavoriteCars = async (car: Car) => {
     try {
-      const response = await axiosPublic.post("/favoritesCars", {
+      await axiosPublic.post("/favoritesCars", {
         ...car,
         email: user?.email,
       });
       setFavoriteCars([...favoriteCars, car._id]);
       toast.success("Added to favorites!");
-      console.log("Added to favorites:", response.data);
     } catch (error) {
       console.error("Error adding to favorites:", error);
+      toast.error("Failed to add to favorites.");
     }
   };
   return (
@@ -100,7 +128,9 @@ const CarsData: React.FC<CarsDataProps> = ({ cars }) => {
                 <div className="w-full lg:w-2/3 p-4 lg:p-6 flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <h2 className="text-lg font-bold text-primary">{car.model} ({car.category})</h2>
+                      <h2 className="text-lg font-bold text-primary">
+                        {car.model} ({car.category})
+                      </h2>
 
                       {favoriteCars.includes(car._id) ? (
                         <IoMdHeart
@@ -119,9 +149,9 @@ const CarsData: React.FC<CarsDataProps> = ({ cars }) => {
                       <p className="flex items-center gap-1">
                         {car.averageRating > 0 ? (
                           <>
-                            {car.averageRating.toFixed(1)}
-                            <MdOutlineStar className="text-accent" />
-                            ({car.trip_count} trips)
+                            {car.averageRating}
+                            <MdOutlineStar className="text-accent" />(
+                            {car.trip_count} trips)
                           </>
                         ) : (
                           "New listing"
@@ -133,7 +163,7 @@ const CarsData: React.FC<CarsDataProps> = ({ cars }) => {
                       </p>
                     </div>
 
-                    <div className="overflow-hidden transition-all duration-500 ease-in-out h-0 group-hover:h-24 opacity-0 group-hover:opacity-100">
+                    <div className="overflow-hidden transition-all duration-300 ease-in-out max-h-0 group-hover:max-h-64 opacity-0 group-hover:opacity-100">
                       <div className="mt-3 space-y-2 text-sm text-text">
                         <div className="flex flex-wrap gap-2">
                           {car.features.slice(0, 3).map((feature, index) => (
@@ -162,7 +192,7 @@ const CarsData: React.FC<CarsDataProps> = ({ cars }) => {
 
                   <div className="flex items-center justify-between mt-4">
                     <span className="text-primary font-bold text-lg">
-                      BDT   {car?.rental_price_per_day}/day
+                      BDT {car?.rental_price_per_day}/day
                     </span>
                     <Link to={`/cars/${car._id}`}>
                       <button className="bg-secondary text-white text-sm px-4 py-3 font-bold drop-shadow-md rounded-lg transition-transform duration-300 hover:scale-105">
