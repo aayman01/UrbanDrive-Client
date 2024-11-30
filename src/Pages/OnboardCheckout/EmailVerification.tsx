@@ -14,7 +14,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({ email, onVerified
 
   const sendVerificationCode = async () => {
     try {
-      const response = await axios.post('http://localhost:8000/send-verification-code', { email });
+      const response = await axios.post('https://urban-driveserver.vercel.app/send-verification-code', { email });
       if (response.data.success) {
         setIsCodeSent(true);
         setError('');
@@ -28,7 +28,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({ email, onVerified
 
   const verifyCode = async () => {
     try {
-      const response = await axios.post('http://localhost:8000/verify-code', { email, code: verificationCode });
+      const response = await axios.post('https://urban-driveserver.vercel.app/verify-code', { email, code: verificationCode });
       if (response.data.success) {
         onVerified();
       } else {

@@ -63,7 +63,7 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
         loader: ({ params }) =>
-          fetch(`http://localhost:8000/cars/${params.id}`),
+          fetch(`https://urban-driveserver.vercel.app/cars/${params.id}`),
       },
       {
         path: "/services",
@@ -103,15 +103,23 @@ const router = createBrowserRouter([
       },
       {
         path: "/model/:car",
-        element: <SpecificCarDetails/>,
-        loader : ({params}) => 
-          fetch(`http://localhost:8000/model/${params.car}`)
+        element: <SpecificCarDetails />,
+        loader: ({ params }) =>
+          fetch(`https://urban-driveserver.vercel.app/model/${params.car}`),
       },
       {
         path: "/city/:car",
-        element: <SpecificCarDetails/>,
-        loader : ({params}) => 
-          fetch(`http://localhost:8000/location/${params.car}`)
+        element: <SpecificCarDetails />,
+        loader: ({ params }) =>
+          fetch(`https://urban-driveserver.vercel.app/location/${params.car}`),
+      },
+      {
+        path: "/favorite",
+        element: (
+          <PrivateRoute>
+            <Favorite />
+          </PrivateRoute>
+        ),
       },
     ],
   },
@@ -154,14 +162,7 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ),
   },
-  {
-    path: "/favorite",
-    element: (
-      <PrivateRoute>
-        <Favorite />
-      </PrivateRoute>
-    ),
-  },
+
   {
     path: "/booked",
     element: (
@@ -176,9 +177,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "adminhome",
-        element: (
-            <AdminHome />
-        ),
+        element: <AdminHome />,
       },
       {
         path: "manageUser",

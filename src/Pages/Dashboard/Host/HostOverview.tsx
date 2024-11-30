@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IoPersonSharp } from "react-icons/io5";
 import { FaCarRear, FaDollarSign } from "react-icons/fa6";
 import { useQuery } from "@tanstack/react-query";
@@ -52,7 +53,13 @@ const HostOverview: React.FC = () => {
       return res.data;
     },
   });
-
+   const { data: bookingData = [] } = useQuery({
+     queryKey: ["bookingData"],
+     queryFn: async () => {
+       const res = await axiosPublic.get(`/hostHistory/${user?.email}`);
+       return res.data;
+     },
+   });
   interface bookings {
     _id: string;
     userName: string;
@@ -94,23 +101,9 @@ const HostOverview: React.FC = () => {
     intervals: { style: "bars" },
     legend: "none",
   };
-
-
-  interface Booking {
-    _id: string;
-    amount: number;
-    totalCost: number;
-  }
-  //  get price 
-  const { data: bookingData = [] } = useQuery<Booking[]>({
-    queryKey: ["bookingData"],
-    queryFn: async () => {
-      const res = await axiosPublic.get(`/hostHistory/${user?.email}`);
-      return res.data;
-    },
-  });
-   // Calculating total amount
-  const totalPrice = bookingData.reduce((sum, item) => {
+ 
+  //  Calculating total amount
+  const totalPrice = bookingData.reduce((sum : number, item : any) => {
     const cost = item.totalCost || item.amount || 0;
     return sum + cost;
   }, 0);
@@ -129,14 +122,8 @@ const HostOverview: React.FC = () => {
           bgColor="bg-[#14B8A6]"
         />
         <StatCard
-          icon={IoPersonSharp}
-          title="Total Cars"
-          value={data?.hostCount}
-          bgColor="bg-[#003366]"
-        />
-        <StatCard
           icon={FaCarRear}
-          title="Available Cars"
+          title="Total Cars"
           value={data?.carCount}
           bgColor="bg-[#003366]"
         />

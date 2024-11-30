@@ -68,18 +68,24 @@ const ManageMemberShip = () => {
                 </tr>
               </thead>
               <tbody>
-                {memberShip.map((item: PaymentData, idx: number) => (
-                  item.status === "Success" && (
-                    <tr key={item._id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-4">{idx + 1}</td>
-                      <td className="py-4">{item?.cus_name || "Roksana"}</td>
-                      <td className="py-4">{item?.planName}</td>
-                      <td className="py-4">{formatDate(item?.purchaseDate)}</td>
-                      <td className="py-4">{formatDate(item?.expiryDate)}</td>
-                      <td className="py-4 font-bold">{item?.amount}$</td>
-                    </tr>
-                  )
-                ))}
+                {memberShip.map(
+                  (item: PaymentData, idx: number) =>
+                    item.status === "Success" && (
+                      <tr
+                        key={item._id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
+                        <td className="py-4">{idx + 1}</td>
+                        <td className="py-4">{item?.cus_name || "Roksana"}</td>
+                        <td className="py-4">{item?.planName}</td>
+                        <td className="py-4">
+                          {formatDate(item?.purchaseDate)}
+                        </td>
+                        <td className="py-4">{formatDate(item?.expiryDate)}</td>
+                        <td className="py-4 font-bold">{item?.amount} ৳</td>
+                      </tr>
+                    )
+                )}
               </tbody>
             </table>
           </div>

@@ -154,7 +154,7 @@ console.log(car.email);
         make: car?.make,
       };
 
-      const response = await axiosPublic.post('http://localhost:8000/bookings', bookingData);
+      const response = await axiosPublic.post('https://urban-driveserver.vercel.app/bookings', bookingData);
 
       if (response.data.success && response.data.bookingId) {
         navigate(`/checkout/${response.data.bookingId}`);

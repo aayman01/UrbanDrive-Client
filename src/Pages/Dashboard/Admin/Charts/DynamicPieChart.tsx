@@ -10,10 +10,10 @@ interface BookingData {
 
 const DynamicPieChart: React.FC = () => {
     const [piChartData, setPiChartData] = useState<(string | number)[][]>([
-        ["Status", "Count"],
-        ["Success", 0],
-        ["Pending", 0],
-        ["Cancel", 0],
+      ["Status", "Count"],
+      ["Accepted", 0],
+      ["pending", 0],
+      ["Canceled", 0],
     ]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -41,19 +41,19 @@ const DynamicPieChart: React.FC = () => {
                 const statusCounts = bookingData.reduce(
                     (acc, booking) => {
                         const status = booking.hostIsApproved;
-                        if (status === "success") acc.success += 1;
+                        if (status === "Accepted") acc.success += 1;
                         else if (status === "pending") acc.pending += 1;
-                        else if (status === "cancel") acc.cancel += 1;
+                        else if (status === "canceled") acc.cancel += 1;
                         return acc;
                     },
                     { success: 0, pending: 0, cancel: 0 }
                 );
 
                 const updatedData: (string | number)[][] = [
-                    ["Status", "Count"],
-                    ["Success", statusCounts.success],
-                    ["Pending", statusCounts.pending],
-                    ["Cancel", statusCounts.cancel],
+                  ["Status", "Count"],
+                  ["Accepted", statusCounts.success],
+                  ["Pending", statusCounts.pending],
+                  ["Canceled", statusCounts.cancel],
                 ];
 
                 setPiChartData(updatedData);
@@ -63,7 +63,7 @@ const DynamicPieChart: React.FC = () => {
                 } else {
                     setError("An unknown error occurred.");
                 }
-                console.error("Error fetching booking data:", error);
+                // console.error("Error fetching booking data:", error);
             } finally {
                 setLoading(false);
             }

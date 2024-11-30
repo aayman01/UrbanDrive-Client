@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import useAuth from "../../Hooks/useAuth";
 import { LuCheckCircle } from "react-icons/lu";
@@ -24,7 +25,15 @@ interface User {
     creationTime: string;
   };
   userId: string;
+  
 }
+type Reviews = {
+  id: string; // or number, depending on your data
+  user: string;
+  rating: number;
+  comment: string;
+  _id: any;
+};
 
 const Profile: React.FC = () => {
   // const { user }: { user: Partial<User> | null } = useAuth();
@@ -43,7 +52,7 @@ const Profile: React.FC = () => {
   const [phone, setPhone] = useState<string>(user?.phone || "");
   const [photoURL, setPhotoURL] = useState("");
   const [reviews, setReviews] = useState<Reviews[]>([]);
-  const [ setError] = useState<string>("");
+  // const [ setError] = useState<string>("");
 
   const {
     data: userdata, // Corrected line with comma
@@ -120,9 +129,9 @@ const Profile: React.FC = () => {
         const axiosError = error as AxiosError;
         if (axiosError.response && axiosError.response.status === 404) {
           console.warn("No reviews found for this user");
-        } else {
-          setError("Failed to load reviews");
-          console.error("Error fetching reviews:", axiosError);
+        // } else {
+        //   setError("Failed to load reviews");
+        //   console.error("Error fetching reviews:", axiosError);
         }
       }
     };

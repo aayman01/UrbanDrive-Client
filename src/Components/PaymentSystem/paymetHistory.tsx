@@ -18,9 +18,7 @@ const PaymetHistory = () => {
     const { data: myHistory = [] } = useQuery({
         queryKey: ["myHistory"],
         queryFn: async () => {
-            const res = await axiosPublic.get(
-              `/myHistory/${user?.email}`
-            );
+            const res = await axiosPublic.get(`/myHistory/${user?.email}`);
             return res.data;
         },
     });
