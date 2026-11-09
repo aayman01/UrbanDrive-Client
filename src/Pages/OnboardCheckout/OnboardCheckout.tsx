@@ -8,7 +8,7 @@ import EmailVerification from './EmailVerification';
 import { steps } from '../../Components/steps/UserSteps';
 import Swal from 'sweetalert2';
 import { Toaster, toast } from 'react-hot-toast';
-import { imageUpload } from '../../utils/ImageUpload';
+import { imageUpload } from '../../Utils/ImageUpload';
 import useAxiosPublic from '../../Hooks/useAxiosPublic';
 import { ImSpinner9 } from 'react-icons/im';
 

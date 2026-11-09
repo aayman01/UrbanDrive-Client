@@ -26,6 +26,11 @@ interface User {
   userId: string;
 }
 
+interface UserReview {
+  _id: string;
+  comment: string;
+}
+
 const Profile: React.FC = () => {
   // const { user }: { user: Partial<User> | null } = useAuth();
   const { user, loading } = useAuth() as {
@@ -42,8 +47,8 @@ const Profile: React.FC = () => {
   const [link, setLink] = useState<string>(user?.link || "");
   const [phone, setPhone] = useState<string>(user?.phone || "");
   const [photoURL, setPhotoURL] = useState("");
-  const [reviews, setReviews] = useState<Reviews[]>([]);
-  const [ setError] = useState<string>("");
+  const [reviews, setReviews] = useState<UserReview[]>([]);
+  const [, setError] = useState<string>("");
 
   const {
     data: userdata, // Corrected line with comma
