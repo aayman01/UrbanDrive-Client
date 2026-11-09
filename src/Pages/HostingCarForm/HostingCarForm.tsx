@@ -11,7 +11,7 @@ import HostInformation from './steps/HostInformation';
 import Membership from './steps/Membership';
 import useAxiosPublic from '../../Hooks/useAxiosPublic';
 import Swal from 'sweetalert2';
-import { imageUpload } from '../../utils/ImageUpload';
+import { imageUpload } from '../../Utils/ImageUpload';
 
 
 interface FormData {
@@ -244,6 +244,5 @@ const HostingCarForm: React.FC = () => {
 };
 
 export default HostingCarForm;
-
 
 
