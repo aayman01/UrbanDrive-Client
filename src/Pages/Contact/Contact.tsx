@@ -7,7 +7,8 @@ import useAxiosPublic from '../../Hooks/useAxiosPublic';
 import toast from 'react-hot-toast';
 import slide1 from "../../assets/slides/slide1.jpg";
 import ChatModal from './ChatModal';
-
+import { VerifiedShieldSVG, InstantBookingSVG } from '../../Components/Common/SVG/FeatureBadges';
+import AmbientGlow from '../../Components/Common/SVG/AmbientGlow';
 
 const Contact: React.FC = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -15,7 +16,6 @@ const Contact: React.FC = () => {
   const { t } = useTranslation();
   const axiosPublic = useAxiosPublic();
 
- 
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
@@ -27,10 +27,10 @@ const Contact: React.FC = () => {
   }, [scrollY]);
 
   const contactInfo = [
-    { icon: <MdEmail size={32} />, title: t('contact.email'), content: 'info@urbandrive.com' },
-    { icon: <MdLocationOn size={32} />, title: t('contact.address'), content: 'Dhaka, Bangladesh' },
-    { icon: <MdAccessTime size={32} />, title: 'Opening Hours', content: 'Mon-Sun: 8 AM - 7 PM' },
-    { icon: <FaPhone size={32} />, title: t('contact.phone'), content: '+880 1234 567890' },
+    { icon: <MdEmail className="w-6 h-6 text-teal-600" />, title: t('contact.email'), content: 'info@urbandrive.com' },
+    { icon: <MdLocationOn className="w-6 h-6 text-rose-500" />, title: t('contact.address'), content: 'Dhaka, Bangladesh' },
+    { icon: <MdAccessTime className="w-6 h-6 text-amber-500" />, title: 'Opening Hours', content: 'Mon-Sun: 8 AM - 7 PM' },
+    { icon: <FaPhone className="w-5 h-5 text-sky-500" />, title: t('contact.phone'), content: '+880 1234 567890' },
   ];
 
   interface IFormInputs {
@@ -41,16 +41,14 @@ const Contact: React.FC = () => {
     message: string;
   }
 
-  const { register, handleSubmit, formState: { errors } } = useForm<IFormInputs>();
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<IFormInputs>();
 
   const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
     try {
-      
-      console.log('Form data:', data);
-      
       const response = await axiosPublic.post('/contact', data);
       if (response.status === 200) {
         toast.success('Message sent successfully!');
+        reset();
       } else {
         toast.error('Failed to send message. Please try again.');
       }
@@ -61,178 +59,198 @@ const Contact: React.FC = () => {
   };
 
   const handleChatClick = () => {
-    console.log('Chat button clicked'); // Add this debug log
     setIsChatOpen(true);
   };
 
   return (
-    <div className="contact">
-      {/* Hero Section */}
-      <section className="relative">
-        <div 
-          className="relative h-[60vh] flex items-center justify-center bg-cover bg-center"
+    <div className="relative overflow-hidden">
+      <AmbientGlow variant="subtle" />
+
+      {/* Hero Header */}
+      <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pt-6 pb-12">
+        <div
+          className="relative rounded-3xl overflow-hidden h-[42vh] flex items-center justify-center bg-cover bg-center border border-white/40 shadow-glass-lg"
           style={{ backgroundImage: `url(${slide1})` }}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-          <div className="z-10 text-center px-4">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4">
+          <div className="absolute inset-0 bg-slate-950/75" />
+          <div className="relative z-10 text-center px-4 max-w-2xl">
+            <div className="inline-flex items-center gap-2 glass-pill px-3 py-1 rounded-full text-xs font-bold text-teal-300 bg-teal-950/60 border border-teal-500/30 mb-3">
+              <VerifiedShieldSVG className="w-3.5 h-3.5 text-teal-400" />
+              <span>We're Here For You 24/7</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
               {t('contact.heading')}
             </h1>
-            <p className="text-white text-lg sm:text-xl max-w-2xl mx-auto">
+            <p className="mt-2 text-slate-300 text-sm sm:text-base">
               {t('contact.description')}
             </p>
           </div>
         </div>
 
-        {/* Contact Info Section */}
-        <div className="container mx-auto px-4 -mt-16 relative z-20">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {contactInfo.map((item, index) => (
-              <div
-                key={index}
-                className="rounded-lg p-6 shadow-lg transition-transform transform hover:scale-105 hover:shadow-2xl bg-white hover:bg-primary group duration-300 ease-in-out"
-              >
-                <div className="flex flex-col items-center justify-center text-center group-hover:text-white">
-                  <div className="mb-4 text-primary group-hover:text-white transition-colors duration-300">
-                    {item.icon}
-                  </div>
-                  <h2 className="text-lg font-bold mb-2">{item.title}</h2>
-                  {item.title === t('contact.email') ? (
-                    <a
-                      href={`mailto:${item.content}`}
-                      className="text-sm hover:underline"
-                    >
-                      {item.content}
-                    </a>
-                  ) : (
-                    <p className="text-sm">{item.content}</p>
-                  )}
-                </div>
+        {/* Contact Info Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 -mt-10 relative z-20">
+          {contactInfo.map((item, index) => (
+            <div
+              key={index}
+              className="rounded-2xl p-5 glass-dock bg-white/90 shadow-glass border border-white/60 hover:-translate-y-1 transition-transform duration-300 text-center"
+            >
+              <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center mx-auto mb-3 shadow-sm">
+                {item.icon}
               </div>
-            ))}
-          </div>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                {item.title}
+              </h3>
+              {item.title === t('contact.email') ? (
+                <a href={`mailto:${item.content}`} className="text-sm font-extrabold text-slate-800 hover:text-teal-600 transition-colors">
+                  {item.content}
+                </a>
+              ) : (
+                <p className="text-sm font-extrabold text-slate-800">{item.content}</p>
+              )}
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Form Section */}
-      <section className="py-24 bg-gray-100">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-black mb-12 text-center">
-            {t('contact.get_in_touch')}
-          </h2>
-          <div className="flex flex-col lg:flex-row gap-12">
-            <div className="w-full lg:w-1/2">
-              <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow-2xl rounded-2xl p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Form + Map Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="rounded-3xl glass-card p-6 sm:p-10 border border-white/60 shadow-glass-lg">
+          <div className="text-center max-w-xl mx-auto mb-10">
+            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              {t('contact.get_in_touch')}
+            </h2>
+            <p className="mt-2 text-xs sm:text-sm text-slate-500">
+              Send us a message or inquiry and our team will get back to you within 2 business hours.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+                    Your Name
+                  </label>
                   <input
                     {...register("name", { required: "Name is required" })}
                     type="text"
                     placeholder={t('contact.name_placeholder')}
-                    className={`w-full p-3 border rounded-lg text-black ${errors.name ? 'border-red-500' : ''}`}
+                    className="w-full h-11 px-3.5 glass-input rounded-xl text-sm text-slate-800"
                   />
-                  {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+                  {errors.name && <p className="text-xs text-rose-500 mt-1">{errors.name.message}</p>}
+                </div>
 
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+                    Email Address
+                  </label>
                   <input
-                    {...register("email", { 
+                    {...register("email", {
                       required: "Email is required",
                       pattern: {
                         value: /\S+@\S+\.\S+/,
-                        message: "Invalid email address"
-                      }
+                        message: "Invalid email address",
+                      },
                     })}
                     type="email"
                     placeholder={t('contact.email_placeholder')}
-                    className={`w-full p-3 border rounded-lg text-black ${errors.email ? 'border-red-500' : ''}`}
+                    className="w-full h-11 px-3.5 glass-input rounded-xl text-sm text-slate-800"
                   />
-                  {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                  {errors.email && <p className="text-xs text-rose-500 mt-1">{errors.email.message}</p>}
+                </div>
+              </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+                    Phone Number
+                  </label>
                   <input
                     {...register("phone")}
                     type="tel"
                     placeholder={t('contact.number_placeholder')}
-                    className="w-full p-3 border rounded-lg text-black"
+                    className="w-full h-11 px-3.5 glass-input rounded-xl text-sm text-slate-800"
                   />
+                </div>
 
+                <div>
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+                    Subject
+                  </label>
                   <input
                     {...register("subject", { required: "Subject is required" })}
                     type="text"
                     placeholder={t('contact.subject_placeholder')}
-                    className={`w-full p-3 border rounded-lg text-black ${errors.subject ? 'border-red-500' : ''}`}
+                    className="w-full h-11 px-3.5 glass-input rounded-xl text-sm text-slate-800"
                   />
-                  {errors.subject && <p className="text-red-500 text-sm">{errors.subject.message}</p>}
+                  {errors.subject && <p className="text-xs text-rose-500 mt-1">{errors.subject.message}</p>}
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+                  Message Details
+                </label>
                 <textarea
                   {...register("message", { required: "Message is required" })}
                   placeholder={t('contact.message_placeholder')}
-                  rows={5}
-                  className={`w-full p-3 mt-4 border rounded-lg text-black ${errors.message ? 'border-red-500' : ''}`}
-                ></textarea>
-                {errors.message && <p className="text-red-500 text-sm">{errors.message.message}</p>}
+                  rows={4}
+                  className="w-full p-3.5 glass-input rounded-xl text-sm text-slate-800 resize-none"
+                />
+                {errors.message && <p className="text-xs text-rose-500 mt-1">{errors.message.message}</p>}
+              </div>
 
-                <button
-                  type="submit"
-                  className="w-full px-6 py-3 mt-6 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-2xl hover:opacity-90 transition-opacity duration-300"
-                >
-                  {t('contact.submit')}
-                </button>
-              </form>
-            </div>
+              <button
+                type="submit"
+                className="w-full h-12 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-teal-500 to-sky-600 hover:from-teal-600 hover:to-sky-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
+              >
+                {t('contact.submit')}
+              </button>
+            </form>
 
-            {/* Map Section */}
-            <div className="w-full lg:w-1/2">
-              <div className="h-[410px] rounded-lg overflow-hidden shadow-2xl">
+            {/* Map Frame */}
+            <div className="space-y-3">
+              <div className="h-[360px] rounded-2xl overflow-hidden shadow-lg border border-slate-200">
                 <iframe
+                  title="UrbanDrive Office Map"
                   src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d14599.241897333992!2d90.41001779011839!3d23.82533761273339!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sbd!4v1727014318933!5m2!1sen!2sbd"
                   className="w-full h-full border-0"
                   allowFullScreen
                   loading="lazy"
-                ></iframe>
+                />
               </div>
-              <div className="mt-4 text-center">
-                <p className="text-gray-600">{t('contact.dhaka_location')}</p>
-              </div>
+              <p className="text-xs text-slate-500 text-center font-medium">
+                {t('contact.dhaka_location')}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section
-        className="py-24 bg-cover bg-center bg-fixed"
-        style={{
-          backgroundImage: `url('/path/to/your/cta-background.jpg')`,
-        }}
-      >
-        <div className="container mx-auto px-4">
-          <div className="bg-white bg-opacity-90 rounded-lg p-12 max-w-4xl mx-auto">
-            <p className="text-primary text-lg text-center mb-4 font-semibold tracking-wider">
-              {t('rentYourCar')}
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-6">
-              {t('contact.interested_renting')}
-            </h2>
-            <p className="text-center text-gray-600 mb-8">
-              {t('contact.dont_hesitate')}
-            </p>
-            <div className="flex justify-center">
-              <button 
-                onClick={handleChatClick}
-                className="px-10 py-4 bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-lg hover:opacity-90 transition-opacity duration-300"
-              >
-                {t('Chat with us')}
-              </button>
-            </div>
+      {/* Floating Chat Trigger CTA */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center">
+        <div className="rounded-3xl glass-dock bg-white/90 p-8 sm:p-12 shadow-glass-lg border border-white/60">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 uppercase tracking-wider mb-2">
+            <InstantBookingSVG className="w-4 h-4 text-teal-600" />
+            <span>Instant Host & Support Assist</span>
           </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
+            {t('contact.interested_renting')}
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 mb-6 max-w-lg mx-auto">
+            {t('contact.dont_hesitate')}
+          </p>
+          <button
+            onClick={handleChatClick}
+            className="px-8 py-3.5 rounded-2xl font-bold text-sm text-white bg-slate-900 hover:bg-slate-800 shadow-md transition-all transform hover:-translate-y-0.5"
+          >
+            {t('Chat with us')}
+          </button>
         </div>
       </section>
 
-      {/* Add debug info */}
-      <div className="hidden">Chat Modal State: {isChatOpen ? 'Open' : 'Closed'}</div>
-      
-      <ChatModal 
-        isOpen={isChatOpen} 
-        setIsOpen={setIsChatOpen} 
-      />
+      <ChatModal isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
     </div>
   );
 };

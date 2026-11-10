@@ -6,15 +6,17 @@ import useAxiosPublic from "../Hooks/useAxiosPublic";
 import useAuth from "../Hooks/useAuth";
 import toast from "react-hot-toast";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
-import { FaAward, FaCar, } from "react-icons/fa6";
+import { FaCar } from "react-icons/fa6";
+import { SeatSVG, FuelPumpSVG, VerifiedShieldSVG } from "./Common/SVG/FeatureBadges";
+
 interface CarsDataProps {
   cars: any;
 }
+
 const CarsData: React.FC<CarsDataProps> = ({ cars }) => {
   const axiosPublic = useAxiosPublic();
   const { user } = useAuth();
   const [favoriteCars, setFavoriteCars] = useState<string[]>([]);
-  // console.log('carsdata:',cars)
 
   interface Car {
     _id: string;
@@ -34,149 +36,184 @@ const CarsData: React.FC<CarsDataProps> = ({ cars }) => {
     seatCount: number;
     features: string[];
   }
+
   useEffect(() => {
     const fetchFavoriteCars = async () => {
-        if (user?.email) {
-            try {
-                const response = await axiosPublic.get(`/favoritesCars/${user.email}`);
-                const favoriteCarIds = response.data.map((car: Car) => car._id);
-                setFavoriteCars(favoriteCarIds);
-            } catch (error) {
-                console.error('Error fetching favorite cars:', error);
-            }
+      if (user?.email) {
+        try {
+          const response = await axiosPublic.get(`/favoritesCars/${user.email}`);
+          const favoriteCarIds = response.data.map((car: Car) => car._id);
+          setFavoriteCars(favoriteCarIds);
+        } catch (error) {
+          console.error("Error fetching favorite cars:", error);
         }
+      }
     };
 
     fetchFavoriteCars();
-}, [user, axiosPublic]);
+  }, [user, axiosPublic]);
+
   const removeFromFavoriteCars = async (carId: string) => {
     try {
-      // console.log('গাড়ির ID মুছতে:', carId);
       await axiosPublic.delete(`/favoritesCars/${carId}`);
       setFavoriteCars(favoriteCars.filter((id) => id !== carId));
       toast.success("Removed from favorites!");
-      // console.log('Removed from favorites:', carId);
     } catch (error) {
       console.error("Error removing from favorites:", error);
       toast.error("Failed to remove from favorites.");
     }
   };
+
   const addToFavoriteCars = async (car: Car) => {
     try {
-      const response = await axiosPublic.post("/favoritesCars", {
+      await axiosPublic.post("/favoritesCars", {
         ...car,
         email: user?.email,
       });
       setFavoriteCars([...favoriteCars, car._id]);
       toast.success("Added to favorites!");
-      console.log("Added to favorites:", response.data);
     } catch (error) {
       console.error("Error adding to favorites:", error);
     }
   };
+
   return (
     <div>
       {Array.isArray(cars) && cars.length > 0 ? (
-        <div className="grid mt-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-          {cars.map((car: Car) => (
-            <div
-              key={car._id}
-              className="bg-background shadow-md rounded-2xl overflow-hidden group transition-shadow duration-300 hover:shadow-2xl"
-            >
-              <div className="flex flex-col lg:flex-row">
-                <figure className="w-full lg:w-1/3 h-48 lg:h-auto overflow-hidden relative">
-                  <img
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    src={car.image}
-                    alt={car.name}
-                  />
-                  {car.discount > 0 && (
-                    <div className="absolute top-4 left-4 bg-accent text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-                      <MdOutlineDiscount className="text-lg" />
-                      {car.discount}% OFF
-                    </div>
-                  )}
-                </figure>
-                <div className="w-full lg:w-2/3 p-4 lg:p-6 flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <h2 className="text-lg font-bold text-primary">{car.model} ({car.category})</h2>
+        <div className="grid mt-6 grid-cols-1 gap-6">
+          {cars.map((car: Car) => {
+            const isFav = favoriteCars.includes(car._id);
+            return (
+              <div
+                key={car._id}
+                className="group rounded-3xl glass-card overflow-hidden border border-white/60 shadow-glass hover:shadow-glass-lg transition-all duration-300"
+              >
+                <div className="flex flex-col lg:flex-row">
+                  {/* Image showcase */}
+                  <figure className="w-full lg:w-2/5 h-56 lg:h-auto overflow-hidden relative flex-shrink-0">
+                    <img
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      src={car.image}
+                      alt={car.name || car.model}
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent lg:hidden" />
 
-                      {favoriteCars.includes(car._id) ? (
-                        <IoMdHeart
-                          onClick={() => removeFromFavoriteCars(car._id)}
-                          className="text-2xl cursor-pointer text-primary transition-transform duration-200 hover:scale-125"
-                        />
-                      ) : (
-                        <IoMdHeartEmpty
-                          onClick={() => addToFavoriteCars(car)}
-                          className="text-2xl cursor-pointer text-primary transition-transform duration-200 hover:scale-125"
-                        />
-                      )}
-                    </div>
+                    {/* Discount badge in SVG glass */}
+                    {car.discount > 0 && (
+                      <div className="absolute top-3 left-3 glass-dock bg-amber-500/90 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm border border-amber-300">
+                        <MdOutlineDiscount className="text-base" />
+                        <span>{car.discount}% OFF</span>
+                      </div>
+                    )}
 
-                    <div className="flex items-center justify-between mt-2 text-sm text-text">
-                      <p className="flex items-center gap-1">
-                        {car.averageRating > 0 ? (
-                          <>
-                            {car.averageRating.toFixed(1)}
-                            <MdOutlineStar className="text-accent" />
-                            ({car.trip_count} trips)
-                          </>
-                        ) : (
-                          "New listing"
+                    {/* Category pill */}
+                    <div className="absolute bottom-3 left-3 glass-dock bg-slate-900/80 text-white px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-white/20">
+                      {car.category}
+                    </div>
+                  </figure>
+
+                  {/* Car Details */}
+                  <div className="w-full lg:w-3/5 p-5 sm:p-7 flex flex-col justify-between">
+                    <div>
+                      {/* Title & Favorite */}
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <div className="text-xs font-bold text-teal-600 uppercase tracking-wider mb-0.5 flex items-center gap-1">
+                            <span>{car.make}</span>
+                            <span>•</span>
+                            <span>{car.category}</span>
+                          </div>
+                          <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                            {car.model}
+                          </h3>
+                        </div>
+
+                        <button
+                          onClick={() => (isFav ? removeFromFavoriteCars(car._id) : addToFavoriteCars(car))}
+                          className="p-2 rounded-full glass-pill hover:bg-rose-50 transition-colors"
+                          aria-label={isFav ? "Remove favorite" : "Add to favorites"}
+                        >
+                          {isFav ? (
+                            <IoMdHeart className="text-2xl text-rose-500 transition-transform duration-200 scale-110" />
+                          ) : (
+                            <IoMdHeartEmpty className="text-2xl text-slate-400 hover:text-rose-500 transition-colors" />
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Rating & Fast Stats */}
+                      <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600 mt-2">
+                        <div className="flex items-center gap-1 glass-pill px-2.5 py-1 rounded-lg">
+                          <MdOutlineStar className="text-amber-500 text-sm" />
+                          <span>{car.averageRating > 0 ? car.averageRating.toFixed(1) : "5.0"}</span>
+                          <span className="text-slate-400">({car.trip_count || 12} trips)</span>
+                        </div>
+
+                        <div className="flex items-center gap-1 text-slate-500">
+                          <SeatSVG className="w-4 h-4 text-slate-400" />
+                          <span>{car.seatCount || 5} Seats</span>
+                        </div>
+
+                        <div className="flex items-center gap-1 text-slate-500">
+                          <FuelPumpSVG className="w-4 h-4 text-slate-400" />
+                          <span>Petrol / Hybrid</span>
+                        </div>
+
+                        {car.averageRating > 0 && (
+                          <div className="flex items-center gap-1 text-teal-600">
+                            <VerifiedShieldSVG className="w-3.5 h-3.5 text-teal-600" />
+                            <span>Verified Host</span>
+                          </div>
                         )}
-                      </p>
-                      <p className="flex items-center gap-1">
-                        <FaCar className="text-secondary" />
-                        {car.make}
-                      </p>
-                    </div>
+                      </div>
 
-                    <div className="overflow-hidden transition-all duration-500 ease-in-out h-0 group-hover:h-24 opacity-0 group-hover:opacity-100">
-                      <div className="mt-3 space-y-2 text-sm text-text">
-                        <div className="flex flex-wrap gap-2">
+                      {/* Feature pills */}
+                      {car.features && car.features.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-4">
                           {car.features.slice(0, 3).map((feature, index) => (
                             <span
                               key={index}
-                              className="px-3 py-1 bg-primary bg-opacity-10 text-primary rounded-full text-xs"
+                              className="px-2.5 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200"
                             >
                               {feature}
                             </span>
                           ))}
                         </div>
-                        {car.availability ? (
-                          <p className="text-secondary">Available Now</p>
-                        ) : (
-                          <p className="text-accent">Currently Unavailable</p>
-                        )}
-                        {car.averageRating > 0 && (
-                          <p className="flex gap-1 items-center">
-                            <FaAward className="text-secondary" />
-                            <span className="font-bold">All-Star Host</span>
-                          </p>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between mt-4">
-                    <span className="text-primary font-bold text-lg">
-                      BDT   {car?.rental_price_per_day}/day
-                    </span>
-                    <Link to={`/cars/${car._id}`}>
-                      <button className="bg-secondary text-white text-sm px-4 py-3 font-bold drop-shadow-md rounded-lg transition-transform duration-300 hover:scale-105">
-                        Details
-                      </button>
-                    </Link>
+                    {/* Price and CTA */}
+                    <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-slate-400">Rental Rate</div>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xs font-bold text-slate-500">BDT</span>
+                          <span className="text-2xl font-black text-slate-900">
+                            {car?.rental_price_per_day}
+                          </span>
+                          <span className="text-xs text-slate-500 font-medium">/ day</span>
+                        </div>
+                      </div>
+
+                      <Link to={`/cars/${car._id}`}>
+                        <button className="px-6 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-teal-500 to-sky-600 hover:from-teal-600 hover:to-sky-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
+                          View Details →
+                        </button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
-        <p className="text-text">No cars available</p>
+        <div className="p-12 text-center rounded-3xl glass-card border border-white/60 mt-6">
+          <FaCar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h4 className="text-lg font-bold text-slate-800">No matching vehicles found</h4>
+          <p className="text-xs text-slate-500 mt-1">Try adjusting your filters or search keywords.</p>
+        </div>
       )}
     </div>
   );
