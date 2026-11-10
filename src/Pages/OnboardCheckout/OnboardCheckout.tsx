@@ -261,43 +261,46 @@ const OnboardCheckout: React.FC = () => {
   };
 
   return (
-    <div className='bg-white'>
-      <div className="max-w-6xl my-28 mx-auto p-4 bg-white shadow-lg rounded-lg">
-      <h1 className="text-5xl font-bold mb-6 font-Playfair text-center underline decoration-primary decoration-2 text-primary">Complete Your Booking</h1>
+    <div className='min-h-screen bg-slate-50 py-16 px-4 font-poppins'>
+      <div className="max-w-5xl mx-auto p-6 sm:p-10 bg-white shadow-xl rounded-3xl border border-slate-200/80">
+        <div className="text-center mb-10">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-teal-700 bg-teal-50 border border-teal-200/60 mb-2">
+            Secure Onboarding
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Complete Your Reservation</h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">Verify your credentials and finalize your booking with UrbanDrive</p>
+        </div>
 
-      <div className="flex flex-col lg:flex-row justify-between">
-        <div className="flex flex-col lg:flex-row w-full">
-          <div className="w-full lg:w-1/3 lg:pr-6 lg:border-r">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="w-full lg:w-1/3 lg:pr-6 lg:border-r border-slate-200">
             <StepIndicator steps={steps} currentStep={currentStep} />
           </div>
-          <div className="w-full lg:w-2/3 lg:pl-6 mt-8 lg:mt-0">
+          <div className="w-full lg:w-2/3 lg:pl-4">
             {loading ? (
-              <p>Loading booking details...</p>
+              <p className="text-xs text-slate-400 font-semibold py-8 text-center">Loading booking details...</p>
             ) : (
               <div>{renderStepContent(currentStep)}</div>
             )}
-            <div className="mt-8 flex justify-between">
-              {currentStep > 0 && (
+            <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+              {currentStep > 0 ? (
                 <button
                   onClick={handlePreviousStep}
-                  className="bg-text text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors"
                 >
-                  <span className="mr-2">←</span> Previous
+                  ← Previous
                 </button>
-              )}
+              ) : <div />}
               <button
                 onClick={currentStep === steps.length - 1 ? handleSubmit : handleNextStep}
-                className='px-6 py-2 rounded-md transition-colors text-white bg-primary hover:bg-secondary cursor-pointer'
+                className='px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 transition-colors shadow-sm'
               >
-                {currentStep === steps.length - 1 ? 'Submit' : 'Next'}
-                <span className="ml-2">{currentStep === steps.length - 1 ? '' : '→'}</span>
+                {currentStep === steps.length - 1 ? 'Submit & Finalize' : 'Continue →'}
               </button>
             </div>
           </div>
         </div>
+        <Toaster />
       </div>
-      <Toaster />
-    </div>
     </div>
   );
 };

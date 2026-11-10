@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import useAuth from "../Hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import useRole from "../Hooks/useRole";
-// import { useQuery } from "@tanstack/react-query";
-// import useAxiosPublic from "../Hooks/useAxiosPublic";
-// import { SyncLoader } from "react-spinners";
+import UrbanDriveLogo from "./Common/SVG/UrbanDriveLogo";
 import {
-  // FaUserEdit,
-  // FaHeart,
   FaBookmark,
   FaUser,
   FaBuilding,
@@ -21,26 +17,21 @@ import { FaCircleUser, FaHeart } from "react-icons/fa6";
 type Role = "Admin" | "Host" | "User" | "";
 
 const Navbar: React.FC = () => {
-  // const axiosPublic = useAxiosPublic();
   const [toggle, setToggle] = useState(false);
-
+  const [scrolled, setScrolled] = useState(false);
   const { user, logOut } = useAuth();
   const { t, i18n } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState<string>("");
   const [role]: [Role, boolean, boolean] = useRole();
+  const location = useLocation();
 
-  // const {
-  //   data: userData,
-  //   isLoading,
-  //   isFetching,
-  // } = useQuery({
-  //   queryKey: ["userdata", user?.email],
-  //   queryFn: async () => {
-  //     const response = await axiosPublic.get(`/user/${user?.email}`);
-  //     return response.data;
-  //   },
-  // });
-  // console.log(userData)
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("i18nextLng");
@@ -59,164 +50,152 @@ const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { id: "", title: t("Home") },
-    { id: "Services", title: t("Services") },
-    { id: "About", title: t("About") },
-    { id: "Membership", title: t("Memberships") },
-    { id: "Contact", title: t("Contact") },
+    { id: "", title: t("Home"), path: "/" },
+    { id: "Services", title: t("Services"), path: "/services" },
+    { id: "About", title: t("About"), path: "/about" },
+    { id: "Membership", title: t("Memberships"), path: "/membership" },
+    { id: "Contact", title: t("Contact"), path: "/contact" },
   ];
 
-  // if (isLoading || isFetching) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <SyncLoader color="#593cfb" size={isLoading ? 18 : 10} />
-  //     </div>
-  //   );
-  // }
-
   return (
-    <nav
-      className={`navbar px-10 fixed top-0 left-0 bg-primary z-50 transition-all duration-300 `}
-    >
-      <div className="navbar-start">
-        <Link to="/" className="flex-shrink-0">
-          <h2 className="text-2xl font-bold text-white text-center">
-            <span className="text-accent">U</span>rban
-            <span className="text-accent">Drive</span>
-          </h2>
-        </Link>
-      </div>
-
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 font-Merri">
-          {navLinks.map((link) => (
-            <li key={link.id}>
-              <Link
-                to={`/${link.id}`}
-                className="text-lg text-gray-200 font-medium hover:text-secondary underline-offset-4 hover:underline transition-colors duration-300 focus:text-secondary"
-              >
-                {link.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="navbar-end">
-        {/* Language Switcher - Desktop */}
-        <div className="hidden lg:flex items-center">
-          <button
-            className={`font-bold ${
-              currentLanguage === "en" ? "text-secondary" : "text-gray-200"
-            }`}
-            onClick={() => changeLanguage("en")}
-          >
-            English
-          </button>
-          <span className="ml-2 mr-2 text-gray-200">|</span>
-          <button
-            className={`font-bold mr-3 ${
-              currentLanguage === "bn" ? "text-secondary" : "text-gray-200"
-            }`}
-            onClick={() => changeLanguage("bn")}
-          >
-            বাংলা
-          </button>
+    <header className="fixed top-0 inset-x-0 z-50 transition-all duration-300 px-3 sm:px-6 pt-3 sm:pt-4">
+      <nav
+        className={`max-w-7xl mx-auto rounded-2xl transition-all duration-300 px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between ${
+          scrolled
+            ? "glass-dock bg-white/90 shadow-glass-lg border-white/60"
+            : "glass-dock bg-white/75 shadow-glass border-white/40"
+        }`}
+      >
+        {/* Brand Vector Logo */}
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center">
+            <UrbanDriveLogo size={34} textColor="text-slate-900" />
+          </Link>
         </div>
 
-        {/* Desktop Menu */}
-        <div className="hidden lg:block">
+        {/* Desktop Navigation Links */}
+        <div className="hidden lg:flex items-center space-x-1">
+          {navLinks.map((link) => {
+            const isActive =
+              link.path === "/"
+                ? location.pathname === "/"
+                : location.pathname.startsWith(link.path);
+            return (
+              <Link
+                key={link.id}
+                to={link.path}
+                className={`relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  isActive
+                    ? "text-teal-700 bg-teal-50/80 shadow-sm"
+                    : "text-slate-600 hover:text-teal-600 hover:bg-slate-100/60"
+                }`}
+              >
+                {link.title}
+                {isActive && (
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-teal-500 rounded-full" />
+                )}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Actions & Profile */}
+        <div className="flex items-center space-x-3">
+          {/* Glass Language Pill */}
+          <div className="hidden sm:flex items-center glass-pill rounded-full p-1 border border-slate-200/60">
+            <button
+              className={`px-2.5 py-0.5 text-xs font-bold rounded-full transition-all ${
+                currentLanguage === "en"
+                  ? "bg-teal-500 text-white shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+              onClick={() => changeLanguage("en")}
+            >
+              EN
+            </button>
+            <button
+              className={`px-2.5 py-0.5 text-xs font-bold rounded-full transition-all ${
+                currentLanguage === "bn"
+                  ? "bg-teal-500 text-white shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+              onClick={() => changeLanguage("bn")}
+            >
+              বাং
+            </button>
+          </div>
+
+          {/* User Profile / Auth Button */}
           {user ? (
             <div className="dropdown dropdown-end">
-              <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-                <div className="w-10 rounded-full border-2 border-white shadow-lg">
+              <label
+                tabIndex={0}
+                className="btn btn-ghost btn-circle avatar border border-teal-200/80 p-0.5 shadow-sm hover:border-teal-400"
+              >
+                <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-100">
                   {user?.photoURL ? (
                     <img
                       src={user?.photoURL}
-                      className="rounded-full w-32 h-32"
+                      className="w-full h-full object-cover"
                       alt="User avatar"
                     />
                   ) : (
-                    <FaCircleUser className="w-32 h-32" />
+                    <FaCircleUser className="w-full h-full text-slate-400" />
                   )}
                 </div>
               </label>
-              <ul className="mt-3 z-[1] p-2 shadow-lg menu menu-sm dropdown-content bg-white rounded-lg w-56">
-                {/* <li className="hover:bg-gray-100 rounded-md">
-                  <Link
-                    to="/update-user"
-                    className="flex items-center p-2 text-gray-700"
-                  >
-                    <FaUserEdit className="mr-2" /> {t("updateUser")}
-                  </Link>
-                </li> */}
-                <li className="hover:bg-gray-100 rounded-md">
-                  <Link
-                    to="/favorite"
-                    className="flex items-center p-2 text-gray-700"
-                  >
-                    <FaHeart className="mr-2" /> {t("Favorite")}
+
+              <ul className="mt-3 z-[1] p-2 shadow-glass-lg menu menu-sm dropdown-content glass-dock bg-white/95 rounded-2xl w-60 border border-slate-100">
+                <li className="px-3 py-2 border-b border-slate-100 mb-1">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Signed in as</span>
+                  <span className="text-sm font-bold text-slate-800 truncate block">{user?.displayName || user?.email}</span>
+                </li>
+                <li>
+                  <Link to="/favorite" className="flex items-center py-2 px-3 text-slate-700 hover:text-teal-600 rounded-xl hover:bg-teal-50">
+                    <FaHeart className="mr-2 text-rose-500" /> {t("Favorite")}
                   </Link>
                 </li>
-                <li className="hover:bg-gray-100 rounded-md">
-                  <Link
-                    to="/booked"
-                    className="flex items-center p-2 text-gray-700"
-                  >
-                    <FaBookmark className="mr-2" /> {t("Bookings")}
+                <li>
+                  <Link to="/booked" className="flex items-center py-2 px-3 text-slate-700 hover:text-teal-600 rounded-xl hover:bg-teal-50">
+                    <FaBookmark className="mr-2 text-amber-500" /> {t("Bookings")}
                   </Link>
                 </li>
-                <li className="hover:bg-gray-100 rounded-md">
-                  <Link
-                    to="/profile"
-                    className="flex items-center p-2 text-gray-700"
-                  >
-                    <FaUser className="mr-2" /> {t("Profile")}
+                <li>
+                  <Link to="/profile" className="flex items-center py-2 px-3 text-slate-700 hover:text-teal-600 rounded-xl hover:bg-teal-50">
+                    <FaUser className="mr-2 text-blue-500" /> {t("Profile")}
                   </Link>
                 </li>
-                <li className="hover:bg-gray-100 rounded-md">
-                  <Link
-                    to="/hostingForm"
-                    className="flex items-center p-2 text-gray-700"
-                  >
-                    <FaBuilding className="mr-2" /> {t("becomeHost")}
+                <li>
+                  <Link to="/hostingForm" className="flex items-center py-2 px-3 text-slate-700 hover:text-teal-600 rounded-xl hover:bg-teal-50">
+                    <FaBuilding className="mr-2 text-purple-500" /> {t("becomeHost")}
                   </Link>
                 </li>
-                <li className="hover:bg-gray-100 rounded-md">
-                  <Link
-                    to="/payment-history"
-                    className="flex items-center p-2 text-gray-700"
-                  >
-                    <FaCreditCard className="mr-2" /> {t("Payment")}
+                <li>
+                  <Link to="/payment-history" className="flex items-center py-2 px-3 text-slate-700 hover:text-teal-600 rounded-xl hover:bg-teal-50">
+                    <FaCreditCard className="mr-2 text-emerald-500" /> {t("Payment")}
                   </Link>
                 </li>
                 {role === "Admin" && (
-                  <li className="hover:bg-gray-100 rounded-md">
-                    <Link
-                      to="/dashboard/adminhome"
-                      className="flex items-center p-2 text-gray-700"
-                    >
-                      <MdDashboard className="mr-2" /> {t("Dashboard")}
+                  <li>
+                    <Link to="/dashboard/adminhome" className="flex items-center py-2 px-3 text-slate-700 hover:text-teal-600 rounded-xl hover:bg-teal-50">
+                      <MdDashboard className="mr-2 text-teal-600" /> {t("Dashboard")}
                     </Link>
                   </li>
                 )}
                 {role === "Host" && (
-                  <li className="hover:bg-gray-100 rounded-md">
-                    <Link
-                      to="/dashboard/hostOverview"
-                      className="flex items-center p-2 text-gray-700"
-                    >
-                      <MdDashboard className="mr-2" /> {t("Dashboard")}
+                  <li>
+                    <Link to="/dashboard/hostOverview" className="flex items-center py-2 px-3 text-slate-700 hover:text-teal-600 rounded-xl hover:bg-teal-50">
+                      <MdDashboard className="mr-2 text-teal-600" /> {t("Dashboard")}
                     </Link>
                   </li>
                 )}
-                <li className="hover:bg-red-100 rounded-md">
+                <li className="mt-1 border-t border-slate-100 pt-1">
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       logOut();
                     }}
-                    className="flex items-center w-full p-2 text-red-600"
+                    className="flex items-center w-full py-2 px-3 text-red-600 hover:bg-red-50 rounded-xl"
                   >
                     <FaSignOutAlt className="mr-2" /> {t("logout")}
                   </button>
@@ -226,143 +205,117 @@ const Navbar: React.FC = () => {
           ) : (
             <Link
               to="/login"
-              className="relative inline-flex items-center justify-center px-6 py-2.5 overflow-hidden text-sm font-bold text-white rounded-lg group bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="relative inline-flex items-center justify-center px-5 py-2 overflow-hidden text-sm font-bold text-white rounded-xl group bg-gradient-to-r from-teal-500 to-sky-600 hover:from-teal-600 hover:to-sky-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
             >
               <span className="relative">{t("SignUp")}</span>
             </Link>
           )}
-        </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="lg:hidden z-50 relative w-6 h-6 col"
-          onClick={() => setToggle(!toggle)}
-        >
-          <span
-            className={`absolute h-0.5 w-full bg-accent transform transition-all duration-300 ease-in-out ${
-              toggle ? "rotate-45 top-3" : "rotate-0 top-1"
-            }`}
-          />
-          <span
-            className={`absolute h-0.5 w-full bg-accent transform transition-all duration-300 ease-in-out ${
-              toggle ? "opacity-0 translate-x-3" : "opacity-100"
-            } top-3`}
-          />
-          <span
-            className={`absolute h-0.5 w-full bg-accent transform transition-all duration-300 ease-in-out ${
-              toggle ? "-rotate-45 top-3" : "rotate-0 top-5"
-            }`}
-          />
-        </button>
-      </div>
-
-      {/* Mobile Menu Overlay */}
-      <div
-        className={`fixed inset-0 bg-base-100 z-40 flex flex-col justify-center items-center transition-all duration-500 lg:hidden ${
-          toggle ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
-      >
-        {/* Language Switcher - Mobile */}
-        <div className="flex items-center mb-8">
+          {/* Mobile Menu Hamburger Button */}
           <button
-            className={`font-bold ${
-              currentLanguage === "en" ? "text-secondary" : "text-gray-800"
-            }`}
-            onClick={() => changeLanguage("en")}
+            className="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors"
+            onClick={() => setToggle(!toggle)}
+            aria-label="Toggle navigation menu"
           >
-            English
-          </button>
-          <span className="mx-2 text-gray-800">|</span>
-          <button
-            className={`font-bold ${
-              currentLanguage === "bn" ? "text-secondary" : "text-gray-800"
-            }`}
-            onClick={() => changeLanguage("bn")}
-          >
-            বাংলা
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {toggle ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+              )}
+            </svg>
           </button>
         </div>
+      </nav>
 
-        {/* Mobile Navigation Links */}
-        <ul className="space-y-3 font-Merri text-center">
-          {navLinks.map((link, index) => (
-            <li
-              key={link.id}
-              className={`transform transition-all duration-300 ${
-                toggle
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-10 opacity-0"
-              }`}
-              style={{ transitionDelay: `${index * 100}ms` }}
-            >
-              <Link
-                to={`/${link.id}`}
-                className="text-2xl font-bold text-gray-800 hover:text-gray-600 transition-colors duration-300"
-                onClick={() => setToggle(false)}
-              >
-                {link.title}
-              </Link>
-            </li>
-          ))}
+      {/* Mobile Frosted Glass Drawer Overlay */}
+      {toggle && (
+        <div className="fixed inset-0 top-[72px] z-40 bg-slate-900/40 backdrop-blur-md lg:hidden p-4">
+          <div className="glass-dock bg-white/95 rounded-3xl p-6 shadow-2xl max-w-sm mx-auto space-y-4">
+            {/* Language Switcher - Mobile */}
+            <div className="flex justify-center items-center pb-3 border-b border-slate-100">
+              <div className="flex items-center glass-pill rounded-full p-1 border border-slate-200">
+                <button
+                  className={`px-4 py-1 text-sm font-bold rounded-full ${
+                    currentLanguage === "en" ? "bg-teal-500 text-white" : "text-slate-600"
+                  }`}
+                  onClick={() => changeLanguage("en")}
+                >
+                  English
+                </button>
+                <button
+                  className={`px-4 py-1 text-sm font-bold rounded-full ${
+                    currentLanguage === "bn" ? "bg-teal-500 text-white" : "text-slate-600"
+                  }`}
+                  onClick={() => changeLanguage("bn")}
+                >
+                  বাংলা
+                </button>
+              </div>
+            </div>
 
-          {/* Mobile User Menu */}
-          {user ? (
-            <li className="space-y-3 text-center">
-              {/* <div className="avatar mb-4">
-                <div className="w-24 rounded-full ring ring-primary">
-                  <img
-                    src={user?.photoURL || user?.photoURL || ""}
-                    alt="User avatar"
-                  />
-                </div>
-              </div> */}
-              <Link
-                to="/profile"
-                className="block text-2xl font-bold text-gray-800 hover:text-gray-600"
-                onClick={() => setToggle(false)}
-              >
-                {t("Profile")}
-              </Link>
-              <Link
-                to="/booked"
-                className="block text-2xl font-bold text-gray-800 hover:text-gray-600"
-                onClick={() => setToggle(false)}
-              >
-                {t("Bookings")}
-              </Link>
-              <button
-                onClick={() => {
-                  logOut();
-                  setToggle(false);
-                }}
-                className="text-2xl font-bold text-red-500 hover:text-red-600 transition-colors duration-300"
-              >
-                Logout
-              </button>
-            </li>
-          ) : (
-            <li
-              className={`transform transition-all duration-300 ${
-                toggle
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-10 opacity-0"
-              }`}
-              style={{ transitionDelay: `${navLinks.length * 100}ms` }}
-            >
-              <Link
-                to="/login"
-                onClick={() => setToggle(false)}
-                className="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-xl font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-teal-500 to-navy-700 group-hover:from-teal-500 group-hover:to-navy-700 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-yellow-400 dark:focus:ring-yellow-800"
-              >
-                <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                  Sign Up
-                </span>
-              </Link>
-            </li>
-          )}
-        </ul>
-      </div>
-    </nav>
+            {/* Mobile Nav Links */}
+            <ul className="space-y-1">
+              {navLinks.map((link) => (
+                <li key={link.id}>
+                  <Link
+                    to={link.path}
+                    className="block px-4 py-2.5 rounded-xl font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-600"
+                    onClick={() => setToggle(false)}
+                  >
+                    {link.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            {/* Mobile User Profile Section */}
+            {user ? (
+              <div className="pt-3 border-t border-slate-100 space-y-2">
+                <Link
+                  to="/profile"
+                  className="block px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50 rounded-xl"
+                  onClick={() => setToggle(false)}
+                >
+                  {t("Profile")}
+                </Link>
+                <Link
+                  to="/booked"
+                  className="block px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50 rounded-xl"
+                  onClick={() => setToggle(false)}
+                >
+                  {t("Bookings")}
+                </Link>
+                <button
+                  onClick={() => {
+                    logOut();
+                    setToggle(false);
+                  }}
+                  className="w-full text-left px-4 py-2 font-semibold text-red-600 hover:bg-red-50 rounded-xl"
+                >
+                  {t("logout")}
+                </button>
+              </div>
+            ) : (
+              <div className="pt-3 border-t border-slate-100">
+                <Link
+                  to="/login"
+                  onClick={() => setToggle(false)}
+                  className="block w-full py-3 text-center rounded-xl font-bold text-white bg-gradient-to-r from-teal-500 to-sky-600 shadow-md"
+                >
+                  {t("SignUp")}
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 

@@ -1,94 +1,94 @@
 import React from "react";
-// Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
-
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
-
-// import required modules
 import { Autoplay } from "swiper/modules";
 
 import Hyundai from "../assets/Hyundai.png";
 import Nissan from "../assets/nissan.png";
-// import Nissan2 from '../assets/nissan2.png';
 import Suzuki from "../assets/suzuki.jpg";
 import Toyota from "../assets/toyota.jpg";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { MdArrowForward, MdDirectionsCar } from "react-icons/md";
+import { InstantBookingSVG } from "./Common/SVG/FeatureBadges";
 
 interface Car {
   name: string;
   image: string;
+  category: string;
 }
 
 const BrowseByCar: React.FC = () => {
   const { t } = useTranslation();
   const cars: Car[] = [
-    { name: t("Toyota"), image: Toyota },
-    { name: t("Honda"), image: Hyundai },
-    { name: t("Nissan"), image: Nissan },
-    { name: t("BMW"), image: Suzuki },
+    { name: t("Toyota"), image: Toyota, category: "Sedans & Hybrids" },
+    { name: t("Honda"), image: Hyundai, category: "SUVs & Compacts" },
+    { name: t("Nissan"), image: Nissan, category: "Electric & Crossovers" },
+    { name: t("BMW"), image: Suzuki, category: "Luxury & Executive" },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl font-bold text-text mb-3 font-serif relative inline-block">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Header */}
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center gap-2 glass-pill px-3 py-1 rounded-full text-xs font-bold text-amber-700 bg-amber-50/70 border border-amber-200/50 mb-3">
+          <InstantBookingSVG className="w-3.5 h-3.5 text-amber-600" />
+          <span>Top Global Manufacturers</span>
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
           {t("browseByCar")}
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-secondary rounded-full"></div>
         </h2>
+        <p className="mt-2 text-sm sm:text-base text-slate-500 max-w-xl mx-auto">
+          Choose from world-class automobile brands maintained in immaculate condition
+        </p>
       </div>
 
       <Swiper
         slidesPerView={1}
-        spaceBetween={20}
+        spaceBetween={24}
         autoplay={{
-          delay: 3000,
+          delay: 3200,
           disableOnInteraction: false,
         }}
         breakpoints={{
-          640: {
-            slidesPerView: 2,
-          },
-          1024: {
-            slidesPerView: 3,
-          },
-          1280: {
-            slidesPerView: 4,
-          },
+          640: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
+          1280: { slidesPerView: 4 },
         }}
         modules={[Autoplay]}
-        className="pb-14"
+        className="pb-8"
       >
         {cars.map((car, index) => (
           <SwiperSlide key={index}>
-            <Link 
-              to={`/model/${car?.name}`} 
-              className="block group"
-            >
-              <div className="relative rounded-2xl overflow-hidden shadow-lg transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                <div 
-                  className="h-64 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+            <Link to={`/model/${car?.name}`} className="block group">
+              <div className="relative rounded-3xl overflow-hidden glass-card p-2 border border-white/60 shadow-glass transition-all duration-300 group-hover:shadow-glass-lg group-hover:-translate-y-1.5">
+                <div
+                  className="relative h-72 rounded-2xl overflow-hidden bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                   style={{ backgroundImage: `url(${car.image})` }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                    <div className="absolute bottom-0 p-5 w-full">
-                      <div className="flex items-center gap-2 mb-3">
-                        <MdDirectionsCar className="text-secondary text-xl" />
-                        <h3 className="text-xl font-bold text-background">
-                          {car.name}
-                        </h3>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-background/80 text-sm">
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent" />
+
+                  {/* Top Category Tag */}
+                  <div className="absolute top-3 right-3 glass-dock bg-white/80 px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-800 shadow-sm border border-white/40">
+                    {car.category}
+                  </div>
+
+                  {/* Bottom Info Glass Dock */}
+                  <div className="absolute bottom-3 inset-x-3 glass-dock bg-white/90 backdrop-blur-md p-3.5 rounded-2xl shadow-glass border border-white/60">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5 text-slate-900 font-extrabold text-base">
+                          <MdDirectionsCar className="text-amber-500 text-lg flex-shrink-0" />
+                          <span>{car.name}</span>
+                        </div>
+                        <span className="text-[11px] font-medium text-slate-500 pl-6 block">
                           {t("Explore cars")}
                         </span>
-                        <div className="bg-secondary p-2 rounded-full transform translate-x-2 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-                          <MdArrowForward className="text-background text-lg" />
-                        </div>
+                      </div>
+
+                      <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center transform transition-transform duration-300 group-hover:scale-110 shadow-sm">
+                        <MdArrowForward className="text-base" />
                       </div>
                     </div>
                   </div>
@@ -98,12 +98,7 @@ const BrowseByCar: React.FC = () => {
           </SwiperSlide>
         ))}
       </Swiper>
-      {/* <style>{`
-        .swiper-wrapper {
-          margin: 20px 0;
-        }
-      `}</style> */}
-    </div>
+    </section>
   );
 };
 

@@ -6,6 +6,8 @@ import useAuth from "../../../Hooks/useAuth";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import Swal from "sweetalert2";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
+import UrbanDriveLogo from "../../../Components/Common/SVG/UrbanDriveLogo";
+import AmbientGlow from "../../../Components/Common/SVG/AmbientGlow";
 
 type Inputs = {
   name: string;
@@ -15,7 +17,6 @@ type Inputs = {
   role: string;
 };
 
-
 const Registration: React.FC = () => {
   const {
     register,
@@ -24,18 +25,16 @@ const Registration: React.FC = () => {
     watch,
     formState: { errors },
   } = useForm<Inputs>();
-  const { createUser , googleSignIn } = useAuth();
+  const { createUser, googleSignIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const axiosPublic = useAxiosPublic();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setConfirmShowPassword] = useState(false);
 
-
   const password = watch("password");
-  // const agreeToTerms = watch("agreeToTerms");
 
-  const onSubmit: SubmitHandler<Inputs> = (data) =>{
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
     createUser(data.email, data.password)
       .then(() => {
         const userInfo = {
@@ -44,13 +43,12 @@ const Registration: React.FC = () => {
           role: "User",
         };
         axiosPublic.post("/users", userInfo).then((res) => {
-          // console.log(res.data)
           if (res.data.insertedId) {
             reset();
             Swal.fire({
               position: "center",
               icon: "success",
-              title: "Successfully Sign up",
+              title: "Successfully signed up",
               showConfirmButton: false,
               timer: 1500,
             });
@@ -58,7 +56,15 @@ const Registration: React.FC = () => {
           }
         });
       })
-      .catch();
+      .catch((err) => {
+        console.error(err);
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Registration failed",
+          text: "Email may already be in use.",
+        });
+      });
   };
 
   const handleGoogleLogIn = () => {
@@ -69,14 +75,12 @@ const Registration: React.FC = () => {
           name: result.user?.displayName,
           role: "User",
         };
-        // console.log(userInfo)
         await axiosPublic.post("/users", userInfo).then((res) => {
-          // console.log(res.data)
           if (res.data) {
             Swal.fire({
               position: "center",
               icon: "success",
-              title: "Successfully logged in",
+              title: "Successfully signed up with Google",
               showConfirmButton: false,
               timer: 1500,
             });
@@ -84,185 +88,196 @@ const Registration: React.FC = () => {
           }
         });
       })
-      .catch();
+      .catch((err) => console.error(err));
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="relative flex gap-9 flex-col justify-center items-center m-6 space-y-8 bg-slate-50 shadow-2xl rounded-2xl md:flex-row md:space-y-0">
-        <div className="flex flex-col justify-center p-8 md:p-14">
-          <span className="mb-3 text-4xl font-bold text-black text-center font-poppins">
-            Create Account
-          </span>
-          <span className="text-gray-400 mb-8 font-Open font-bold">
-            Join us! Please enter your details to register
-          </span>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="py-4">
-              <span className="mb-2 text-[14px] text-md text-black font-medium ml-1">
+    <div className="relative min-h-screen flex items-center justify-center p-4 py-16">
+      <AmbientGlow variant="hero" />
+
+      <div className="relative z-10 w-full max-w-4xl rounded-3xl glass-dock bg-white/85 shadow-glass-lg border border-white/60 overflow-hidden flex flex-col md:flex-row">
+        {/* Form Container */}
+        <div className="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
+          <div className="mb-6">
+            <UrbanDriveLogo size={34} textColor="text-slate-900" />
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-4">
+              Create an account
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Join UrbanDrive for instant rentals and car sharing
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
+            <div>
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
                 Full Name
-              </span>
+              </label>
               <input
                 type="text"
-                className="w-full mt-2 p-2 border rounded-md placeholder:font-light placeholder:text-gray-500 text-black focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="John Doe"
+                className="w-full h-10 px-3.5 rounded-xl glass-input text-sm text-slate-800"
                 {...register("name", { required: true })}
-                placeholder="Full Name"
               />
               {errors.name && (
-                <span className="text-red-500 mt-2">
-                  Full name is required*
+                <span className="text-xs text-rose-500 mt-0.5 block">Full name is required</span>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                placeholder="name@example.com"
+                className="w-full h-10 px-3.5 rounded-xl glass-input text-sm text-slate-800"
+                {...register("email", { required: true })}
+              />
+              {errors.email && (
+                <span className="text-xs text-rose-500 mt-0.5 block">Email is required</span>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Min 6 characters"
+                  className="w-full h-10 px-3.5 pr-10 rounded-xl glass-input text-sm text-slate-800"
+                  {...register("password", {
+                    required: true,
+                    minLength: 6,
+                    maxLength: 20,
+                  })}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+              {errors.password && (
+                <span className="text-xs text-rose-500 mt-0.5 block">
+                  Password must be between 6 and 20 characters
                 </span>
               )}
             </div>
-            <div className="py-4">
-              <span className="text-[14px] text-md text-black font-medium ml-1">
-                Email
-              </span>
-              <input
-                type="email"
-                className="w-full mt-2 p-2 border rounded-md placeholder:font-light placeholder:text-gray-500 text-black focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Your email"
-                {...register("email", { required: true })}
-              />
-              {errors.name && (
-                <span className="text-red-500 mt-2">Email is required*</span>
-              )}
-            </div>
-            {/* <div>
-              <label className="form-control w-full mb-4">
-                <div className="label">
-                  <span className="label-text font-medium">Role</span>
-                </div>
-                <select
-                  defaultValue=""
-                  {...register("role", { required: true })}
-                  className="w-full p-2 border rounded-md placeholder:font-light placeholder:text-gray-500 text-black focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option className="text-white" disabled value="">
-                    Select a role
-                  </option>
-                  <option value="User">User</option>
-                  <option value="Seller">Driver</option>
-                </select>
-                {errors.role && (
-                  <span className="text-red-500 mt-2">Role is required</span>
-                )}
-              </label>
-            </div> */}
-            <div className="form-control relative">
-              <label className="label">
-                <span className="label-text font-medium">Password</span>
-              </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="password"
-                className="w-full p-2 border rounded-md placeholder:font-light placeholder:text-gray-500 text-black focus:outline-none focus:ring-2 focus:ring-primary"
-                {...register("password", {
-                  required: true,
-                  minLength: 6,
-                  maxLength: 20,
-                  // pattern:
-                  //   /(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])/,
-                })}
-              />
-              {errors.password?.type === "required" && (
-                <p className="text-red-600 mt-2">Password is required</p>
-              )}
-              {errors.password?.type === "maxLength" && (
-                <p className="text-red-600 mt-2">
-                  Password should be max 20 character
-                </p>
-              )}
-              {errors.password?.type === "minLength" && (
-                <p className="text-red-600 mt-2">
-                  Password should be minimum 6 character
-                </p>
-              )}
-              {/* {errors.password?.type === "pattern" && (
-                    <p className="text-red-600 mt-2">
-                      Password should have one upper case one lower case a
-                      number and a special character
-                    </p>
-                  )} */}
-              <span
-                className="absolute bottom-3 right-3"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <FaEyeSlash className=""></FaEyeSlash>
-                ) : (
-                  <FaEye className="" />
-                )}
-              </span>
-            </div>
-            <div className="py-4 relative">
-              <span className=" text-[14px] text-md text-black font-medium ml-1">
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
                 Confirm Password
-              </span>
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                id="confirmPassword"
-                className="w-full mt-2 p-2 border rounded-md placeholder:font-light placeholder:text-gray-500 text-black focus:outline-none focus:ring-2 focus:ring-primary"
-                {...register("confirmPassword", {
-                  required: "Please confirm your password",
-                  validate: (value) =>
-                    value === password || "Password do not match",
-                })}
-              />
-              <span
-                className="absolute bottom-7 right-3"
-                onClick={() => setConfirmShowPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? (
-                  <FaEyeSlash></FaEyeSlash>
-                ) : (
-                  <FaEye className="" />
-                )}
-              </span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Re-enter password"
+                  className="w-full h-10 px-3.5 pr-10 rounded-xl glass-input text-sm text-slate-800"
+                  {...register("confirmPassword", {
+                    required: "Please confirm your password",
+                    validate: (value) => value === password || "Passwords do not match",
+                  })}
+                />
+                <button
+                  type="button"
+                  onClick={() => setConfirmShowPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
               {errors.confirmPassword && (
-                <span className="text-red-500 mt-3">
+                <span className="text-xs text-rose-500 mt-0.5 block">
                   {errors.confirmPassword.message}
                 </span>
               )}
             </div>
-            <div className="flex justify-start w-full py-4 text-gray-500">
-              <input type="checkbox" id="terms" className="mr-2" />
-              <span className="text-sm font-medium">
-                I agree to the Terms and Conditions
-              </span>
+
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                required
+                id="terms"
+                className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+              />
+              <label htmlFor="terms" className="text-xs text-slate-600 cursor-pointer">
+                I agree to the Terms of Service and Privacy Policy
+              </label>
             </div>
-            <input
+
+            <button
               type="submit"
-              value="Sign Up"
-              className="w-full bg-primary border-2 outline-none border-primary text-white p-2 rounded-lg mb-6 hover:bg-white hover:border-primary hover:text-primary font-medium cursor-pointer"
-            />
+              className="w-full h-11 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-teal-500 to-sky-600 hover:from-teal-600 hover:to-sky-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 mt-2"
+            >
+              Sign Up
+            </button>
           </form>
-          <button
-            onClick={handleGoogleLogIn}
-            className="w-full border border-primary text-primary font-medium text-md p-2 rounded-lg mb-6 hover:bg-second hover:text-white hover:bg-primary"
-          >
-            Sign up with Google
-          </button>
-          <div className="text-center text-gray-400">
-            Already have an account?{" "}
-            <span className="font-bold text-primary hover:text-second cursor-pointer">
-              <Link to="/login">Login</Link>
+
+          {/* Social login divider */}
+          <div className="relative my-4 text-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+            <span className="relative px-3 text-xs font-semibold text-slate-400 bg-white/70 backdrop-blur-md rounded-full">
+              or continue with
             </span>
           </div>
+
+          <button
+            onClick={handleGoogleLogIn}
+            type="button"
+            className="w-full h-10 rounded-xl glass-pill hover:bg-white text-xs font-bold text-slate-700 border border-slate-200 flex items-center justify-center gap-2.5 transition-all shadow-sm"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              />
+            </svg>
+            <span>Sign up with Google</span>
+          </button>
+
+          <p className="mt-4 text-center text-xs text-slate-500">
+            Already have an account?{" "}
+            <Link to="/login" className="font-bold text-teal-600 hover:underline">
+              Login here
+            </Link>
+          </p>
         </div>
 
-        <div className="relative">
+        {/* Right side showcase */}
+        <div className="relative hidden md:block md:w-1/2 overflow-hidden bg-slate-900">
           <img
             src={bgimg}
-            alt="cool image"
-            className="w-[600px] hidden rounded-r-2xl md:block"
+            alt="UrbanDrive preview"
+            className="w-full h-full object-cover opacity-85"
           />
-
-          {/* <div className="absolute hidden bottom-10 right-6 p-6 bg-gray-800 bg-opacity-30 backdrop-blur-sm rounded drop-shadow-lg md:block">
-            <span className="text-white text-xl">
-              Join us for your next adventure
-            </span>
-          </div> */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+          <div className="absolute bottom-8 inset-x-8 glass-dock bg-white/80 p-5 rounded-2xl shadow-glass border border-white/40">
+            <div className="text-xs font-bold text-teal-600 uppercase tracking-wider mb-1">
+              Join 50,000+ Drivers
+            </div>
+            <div className="text-sm font-extrabold text-slate-900">
+              Your next adventure begins with one tap.
+            </div>
+          </div>
         </div>
       </div>
     </div>
