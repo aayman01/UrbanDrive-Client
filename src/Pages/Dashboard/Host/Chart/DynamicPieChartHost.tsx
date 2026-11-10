@@ -1,95 +1,155 @@
 import React, { useEffect, useState } from "react";
-import { Chart } from "react-google-charts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import useAxiosPublic from "../../../../Hooks/useAxiosPublic";
-import { ClipLoader } from "react-spinners"; // Importing a spinner
+import { ClipLoader } from "react-spinners";
 import useAuth from "../../../../Hooks/useAuth";
 
 interface BookingData {
-    _id: string;
-    hostIsApproved: string;
+  _id: string;
+  hostIsApproved: string;
+}
+
+interface StatusItem {
+  name: string;
+  value: number;
+  color: string;
 }
 
 const DynamicPieChartHost: React.FC = () => {
-    const [piChartData, setPiChartData] = useState<(string | number)[][]>([
-        ["Status", "Count"],
-        ["Success", 0],
-        ["Pending", 0],
-        ["Cancel", 0],
-    ]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const axiosPublic = useAxiosPublic();
-    const { user } = useAuth()
+  const [data, setData] = useState<StatusItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const axiosPublic = useAxiosPublic();
+  const { user } = useAuth();
 
-    const options = {
-        title: "Booking Approval Status",
-        colors: ["#4CAF50", "#FFEB3B", "#F44336"],
-        pieSliceText: 'label',
-        legend: { position: 'top' },
+  const STATUS_COLORS: Record<string, string> = {
+    Approved: "#0D9488",
+    Pending: "#F59E0B",
+    Cancelled: "#EF4444",
+  };
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      if (!user?.email) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axiosPublic.get<BookingData[]>(`/hostHistory/${user.email}`);
+        const bookingData = response.data;
+        if (!bookingData || bookingData.length === 0) {
+          setError("No booking history found for your account.");
+          setLoading(false);
+          return;
+        }
+
+        const counts = bookingData.reduce(
+          (acc, booking) => {
+            const status = (booking.hostIsApproved || "pending").toLowerCase();
+            if (status === "success" || status === "approved") acc.Approved += 1;
+            else if (status === "cancel" || status === "rejected") acc.Cancelled += 1;
+            else acc.Pending += 1;
+            return acc;
+          },
+          { Approved: 0, Pending: 0, Cancelled: 0 }
+        );
+
+        const chartItems: StatusItem[] = [
+          { name: "Approved", value: counts.Approved, color: STATUS_COLORS.Approved },
+          { name: "Pending", value: counts.Pending, color: STATUS_COLORS.Pending },
+          { name: "Cancelled", value: counts.Cancelled, color: STATUS_COLORS.Cancelled },
+        ].filter((item) => item.value > 0);
+
+        if (chartItems.length === 0) {
+          chartItems.push({ name: "Pending", value: 1, color: STATUS_COLORS.Pending });
+        }
+
+        setData(chartItems);
+        setTotalCount(bookingData.length || 1);
+      } catch (err: unknown) {
+        console.error("Error fetching host booking data:", err);
+        setError("Unable to load booking breakdown.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    useEffect(() => {
-        const fetchChartData = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await axiosPublic.get<BookingData[]>(`/hostHistory/${user?.email}`);
-                const bookingData = response.data;
-                // console.log(bookingData);
-                // Ensure there are bookings to process
-            if (bookingData.length === 0) {
-                setError("No booking data available.!!!. so pi chart is not available...");
-                setLoading(false);
-                return;
-            }
-                const statusCounts = bookingData.reduce(
-                    (acc, booking) => {
-                        const status = booking.hostIsApproved;
-                        if (status === "success") acc.success += 1;
-                        else if (status === "pending") acc.pending += 1;
-                        else if (status === "cancel") acc.cancel += 1;
-                        return acc;
-                    },
-                    { success: 0, pending: 0, cancel: 0 }
-                );
+    fetchChartData();
+  }, [axiosPublic, user]);
 
-                const updatedData: (string | number)[][] = [
-                    ["Status", "Count"],
-                    ["Success", statusCounts.success],
-                    ["Pending", statusCounts.pending],
-                    ["Cancel", statusCounts.cancel],
-                ];
-
-                setPiChartData(updatedData);
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    setError("Error fetching booking data: " + error.message);
-                } else {
-                    setError("An unknown error occurred.");
-                }
-                console.error("Error fetching booking data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchChartData();
-    }, [axiosPublic]);
-
-    if (loading) return <ClipLoader size={50} color="#36D7B7" />; // Use a spinner for loading
-    if (error) return <div className="text-red-400">{error}</div>;
-
+  if (loading) {
     return (
-        <div>
-            <Chart
-                chartType="PieChart"
-                data={piChartData}
-                width={"100%"}
-                height={"400px"}
-                options={options}
-            />
-        </div>
+      <div className="h-64 flex items-center justify-center">
+        <ClipLoader size={36} color="#0D9488" />
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="h-64 flex items-center justify-center text-xs font-semibold text-slate-400">
+        {error}
+      </div>
+    );
+  }
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const item = payload[0];
+      const percent = ((item.value / totalCount) * 100).toFixed(1);
+      return (
+        <div className="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs shadow-lg border border-slate-800">
+          <div className="font-bold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.payload.color }} />
+            <span>{item.name}: {item.value} trips</span>
+          </div>
+          <span className="text-slate-400 text-[11px] block mt-0.5">{percent}% of your fleet total</span>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative w-full h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Tooltip content={<CustomTooltip />} />
+            <Pie
+              data={data}
+              innerRadius={68}
+              outerRadius={95}
+              paddingAngle={4}
+              dataKey="value"
+              stroke="transparent"
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-2xl font-black text-slate-900">{totalCount}</span>
+          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            Host Trips
+          </span>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-4 mt-2">
+        {data.map((item, index) => (
+          <div key={index} className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+            <span>{item.name}</span>
+            <span className="text-slate-400 font-bold">({item.value})</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default DynamicPieChartHost;
